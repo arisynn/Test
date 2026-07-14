@@ -8,13 +8,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Sweet Connect">
     
-    <!-- Panggilan untuk icon dan startup screen (Splash Screen) PWA iOS -->
-    <link rel="apple-touch-icon" href="logo.png">
-    <link rel="apple-touch-startup-image" href="startup.png">
-    <link rel="icon" type="image/png" href="logo.png">
-    
-    <!-- Panggil file manifest eksternal -->
-    <link rel="manifest" href="manifest.json">
+    <!-- Link Icon dan Startup Image Apple diarahkan langsung ke file gambar sejajar -->
+    <link rel="apple-touch-icon" href="./logo.png">
+    <link rel="apple-touch-startup-image" href="./startup.png">
 
     <title>Sweet Connect</title>
     
@@ -26,14 +22,32 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Tambahan library untuk mencetak struk HTML menjadi Gambar -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <script>
-        // ================= PWA SETUP =================
+        // ================= PWA SETUP INLINE =================
+        // Menghubungkan manifest ke logo.png sejajar index.html
+        const manifest = {
+            "name": "Sweet Connect",
+            "short_name": "Sweet",
+            "start_url": window.location.pathname,
+            "display": "standalone",
+            "background_color": "#fdf2f8",
+            "theme_color": "#ec4899",
+            "icons": [{ "src": "./logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+        document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
+
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(() => {});
-            });
+            const swCode = `
+                self.addEventListener('install', (e) => self.skipWaiting());
+                self.addEventListener('activate', (e) => self.clients.claim());
+                self.addEventListener('fetch', (e) => {});
+            `;
+            const swBlob = new Blob([swCode], {type: 'application/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
         }
     </script>
 
@@ -167,7 +181,6 @@
                 const data = await res.json();
                 if (data.result) {
                     const parsed = JSON.parse(data.result);
-                    // Migrasi & Default
                     if(!parsed.unlockedThemes) parsed.unlockedThemes = ['sweets'];
                     if(parsed.balanceIDR === undefined) parsed.balanceIDR = 0;
                     if(parsed.coins === undefined) parsed.coins = 0;
@@ -180,18 +193,14 @@
                     if(parsed.currentLevel === undefined) parsed.currentLevel = 1;
                     if(parsed.currentScore === undefined) parsed.currentScore = 0;
 
-                    // Support untuk Resume Game
+                    // Mengambil status papan untuk resume
                     if(parsed.savedBoard === undefined) parsed.savedBoard = null;
                     if(parsed.savedProgress === undefined) parsed.savedProgress = 100;
                     
                     return parsed;
                 }
             } catch(e) {}
-            return { 
-                tickets: 0, hints: 3, shuffles: 3, hp: 3, balanceIDR: 0, coins: 0, 
-                flexCrown: false, unlockedThemes: ['sweets'], currentLevel: 1, currentScore: 0,
-                savedBoard: null, savedProgress: 100 // Default state untuk save game
-            };
+            return { tickets: 0, hints: 3, shuffles: 3, hp: 3, balanceIDR: 0, coins: 0, flexCrown: false, unlockedThemes: ['sweets'], currentLevel: 1, currentScore: 0, savedBoard: null, savedProgress: 100 };
         };
         
         const saveProfile = async (name, profile) => {
@@ -298,33 +307,32 @@
         };
 
         // ===================== PWA INSTALL OVERLAY =====================
-        const InstallPrompt = ({ deferredPrompt, onClose }) => {
+        const InstallPrompt = ({ deferredPrompt }) => {
             const handleInstall = async () => {
                 if (deferredPrompt) {
                     deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') onClose();
+                    await deferredPrompt.userChoice;
                 }
             };
 
             return (
-                <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm z-[1000] flex flex-col items-center justify-center p-6 text-center">
-                    <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm flex flex-col items-center modal-enter relative">
-                        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2"><IconClose /></button>
+                <div className="fixed inset-0 pwa-bg z-[1000] flex flex-col items-center justify-center p-6 text-center">
+                    <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm flex flex-col items-center modal-enter">
                         <div className="mb-6 drop-shadow-md">
-                            <img src="logo.png" alt="Sweet Connect Logo" className="w-20 h-20 rounded-3xl shadow-md object-cover" onError={(e) => e.target.style.display='none'} />
+                            {/* Menggunakan logo kustom lokal */}
+                            <img src="./logo.png" alt="Sweet Connect Logo" className="w-24 h-24 rounded-3xl shadow-md object-cover bg-pink-50" />
                         </div>
-                        <h2 className="text-2xl font-black text-gray-800 mb-2">Install Aplikasi</h2>
+                        <h2 className="text-2xl font-black text-gray-800 mb-2">Tunggu Dulu!</h2>
                         <p className="text-gray-500 font-medium text-sm mb-6 leading-relaxed">
-                            Game ini lebih lancar dan full screen jika di-install ke layar depan HP kamu (Home Screen) lho sayang!
+                            Game ini harus di-install ke layar depan HP kamu (Home Screen) supaya bisa dimainkan secara maksimal sayang.
                         </p>
                         
                         {deferredPrompt ? (
-                            <button onClick={handleInstall} className="btn-modern bg-pink-500 text-white w-full py-4 rounded-xl font-bold text-lg shadow-lg mb-2">
+                            <button onClick={handleInstall} className="btn-modern bg-pink-500 text-white w-full py-4 rounded-xl font-bold text-lg shadow-lg mb-4">
                                 Install Sekarang
                             </button>
                         ) : (
-                            <div className="w-full flex flex-col gap-3 mb-2">
+                            <div className="w-full flex flex-col gap-3">
                                 <div className="bg-gray-50 rounded-2xl p-4 text-left border border-gray-100">
                                     <p className="font-bold text-gray-700 mb-1.5 text-sm flex items-center">Apple / iOS</p>
                                     <p className="text-xs text-gray-500 font-medium leading-relaxed">Tekan ikon <IconShareApple/> di bawah, lalu pilih <strong>"Add to Home Screen"</strong>.</p>
@@ -335,7 +343,8 @@
                                 </div>
                             </div>
                         )}
-                        <button onClick={onClose} className="text-gray-400 font-bold text-xs mt-4">Nanti Saja (Main di Browser)</button>
+                        
+                        <p className="text-[10px] text-pink-400 font-bold mt-6 uppercase tracking-wider">Buka game-nya dari layar utama ya!</p>
                     </div>
                 </div>
             );
@@ -559,11 +568,9 @@
                 if(profile.balanceIDR <= 0) return;
                 setIsProcessing(true);
                 try {
-                    // Generate gambar
                     const canvas = await window.html2canvas(receiptRef.current, { scale: 3, backgroundColor: '#ffffff', useCORS: true });
                     const imgData = canvas.toDataURL('image/png');
 
-                    // Auto download gambar
                     const link = document.createElement('a');
                     const pad = (n) => n.toString().padStart(2, '0');
                     const now = new Date();
@@ -575,16 +582,15 @@
                     link.click();
                     document.body.removeChild(link);
 
-                    // Pesan WA
                     const waText = `Halo sayang! Ini aku ${playerName} barusan withdraw saldo dari game Sweet Connect senilai ${formatIDR(profile.balanceIDR)}. Gambar struk resminya barusan udah otomatis kedownload di HP aku, nih aku kirim gambarnya yaa tolong segera dicairin! 😘💸`;
                     const waUrl = `https://wa.me/${targetWaNumber}?text=${encodeURIComponent(waText)}`;
 
                     setTimeout(() => {
                         window.open(waUrl, '_blank');
-                        onWithdraw(); // Reset saldo jadi 0
+                        onWithdraw();
                         setIsProcessing(false);
                         setShowReceipt(false);
-                        onClose(); // Kembali ke lobi
+                        onClose();
                     }, 1500);
 
                 } catch (err) {
@@ -623,7 +629,6 @@
                     </button>
                     <p className="text-xs font-medium text-gray-400 text-center mt-4 w-full max-w-[280px]">Nanti akan keluar struk otomatis dan langsung diarahkan ke WA ayang!</p>
 
-                    {/* HIDDEN RECEIPT TEMPLATE */}
                     <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', zIndex: -1 }}>
                         <div ref={receiptRef} style={{ width: '300px', backgroundColor: '#fff', padding: '20px 25px', color: '#000', fontFamily: '"Space Mono", monospace' }}>
                             <div style={{ textAlign: 'center', marginBottom: '15px' }}>
@@ -653,7 +658,6 @@
                         </div>
                     </div>
 
-                    {/* RECEIPT MODAL CONFIRMATION */}
                     {showReceipt && (
                         <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
                             <div className="w-full max-w-[320px] flex flex-col items-center modal-enter">
@@ -772,24 +776,18 @@
         const App = () => {
             const [isStandalone, setIsStandalone] = useState(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true);
             const [deferredPrompt, setDeferredPrompt] = useState(null);
-            const [showInstallPrompt, setShowInstallPrompt] = useState(false);
             
             const [playerName, setPlayerName] = useState(() => localStorage.getItem('pkmnPlayerName') || '');
             const [loginError, setLoginError] = useState('');
             const [gameState, setGameState] = useState('LOGIN'); 
             const [isLoadingProfile, setIsLoadingProfile] = useState(false);
             
-            // Profile state yang support resume board
-            const [profile, setProfile] = useState({ 
-                tickets: 0, hints: 3, shuffles: 3, hp: 3, balanceIDR: 0, coins: 0, 
-                flexCrown: false, unlockedThemes: ['sweets'], currentLevel: 1, currentScore: 0,
-                savedBoard: null, savedProgress: 100 
-            });
+            // Profile state dengan default null untuk papan tersimpan
+            const [profile, setProfile] = useState({ tickets: 0, hints: 3, shuffles: 3, hp: 3, balanceIDR: 0, coins: 0, flexCrown: false, unlockedThemes: ['sweets'], currentLevel: 1, currentScore: 0, savedBoard: null, savedProgress: 100 });
             
             const [activeTheme, setActiveTheme] = useState(() => localStorage.getItem('pkmnTheme') || 'sweets');
             const [board, setBoard] = useState([]);
             
-            // State in-game
             const [level, setLevel] = useState(1);
             const [score, setScore] = useState(0);
             const [hp, setHp] = useState(3);
@@ -836,7 +834,6 @@
             useEffect(() => { boardRef.current = board; activeThemeRef.current = activeTheme; gameStateRef.current = gameState; }, [board, activeTheme, gameState]);
             useEffect(() => { AudioEngine.setMuted(isMuted); localStorage.setItem('pkmnMuted', isMuted); }, [isMuted]);
             
-            // eslint-disable-next-line react-hooks/exhaustive-deps
             useEffect(() => { if(playerName && gameState === 'LOGIN') handleLoginSubmit(); }, []);
 
             const showAlert = (title, content) => setAlertData({ title, content });
@@ -856,7 +853,7 @@
                 if (isGameOver) {
                     AudioEngine.gameOver();
                     const coinsEarned = Math.floor(score * 0.1);
-                    // Reset semuanya, hapus juga savedBoard
+                    // Hapus papan tersimpan jika game over
                     const newProfile = { 
                         ...profile, 
                         coins: profile.coins + coinsEarned,
@@ -884,7 +881,7 @@
 
                     const nextLevel = level + 1;
                     
-                    // Simpan level, hapus savedBoard karena level selanjutnya pakai papan baru
+                    // Hapus papan tersimpan setelah berhasil menyelesaikan level
                     const newProfile = {
                         ...profile,
                         tickets: newTickets,
@@ -902,7 +899,6 @@
                         setShowBoardClear(false); setGameState('WON');
                         setTimeout(() => {
                             const newB = generateBoard(activeThemeRef.current);
-                            // Set parameter progress default 100 saat level baru
                             prepareLevel(nextLevel, newB, activeThemeRef.current, score, hp, hints, shuffles, 100);
                         }, gotTicket ? 3000 : 1500); 
                         if(gotTicket) showAlert("Yeay!", "Hebat! Kamu dapat 1 Tiket Kado Misteri. Kumpulkan sebanyak-banyaknya!");
@@ -946,8 +942,8 @@
                 return newBoard;
             }, []);
 
-            // Tambahan parameter startProgress untuk Resume Game
-            const prepareLevel = async (startLevel, providedBoard = null, providedTheme = null, startScore = null, startHp = null, startHints = null, startShuffles = null, startProgress = 100) => {
+            // Menerima parameter tambahan untuk progress bar saat load saved board
+            const prepareLevel = async (startLevel, providedBoard = null, providedTheme = null, startScore = null, startHp = null, startHints = null, startShuffles = null, startProgress = null) => {
                 const currentT = providedTheme || activeThemeRef.current;
                 const b = providedBoard || generateBoard(currentT);
                 setBoard(b); setLevel(startLevel);
@@ -960,21 +956,17 @@
                 if (startLevel === 1 && !providedBoard) setIsNewRecord(false); 
                 setMatchedTiles([]);
                 
-                setGameState('LOADING_BOARD');
+                setGameState('LOADING_BOARD'); 
                 
-                // Jika board baru, mulai animasi loading dari 0 ke 100.
-                if (startProgress === 100) {
-                    setProgress(0); 
-                    let p = 0; const interval = setInterval(() => { p += 25; setProgress(p); }, 100);
-                    await new Promise(r => setTimeout(r, 400)); clearInterval(interval); setProgress(100);
-                } else {
-                    // Jika resume game, restore sisa waktunya
-                    setProgress(startProgress);
-                    await new Promise(r => setTimeout(r, 400));
-                }
+                // Loading bar animasi visual
+                let p = 0; const interval = setInterval(() => { p += 25; setProgress(p); }, 100);
+                await new Promise(r => setTimeout(r, 400)); clearInterval(interval); 
+                
+                const initialProgress = startProgress !== null ? startProgress : 100;
+                setProgress(initialProgress);
                 
                 setLevelStartTime(Date.now() + 3700);
-                runCountdownThenPlay(Date.now() + 3700, startProgress);
+                runCountdownThenPlay(Date.now() + 3700, initialProgress);
             };
 
             const runCountdownThenPlay = (startAt, initialProgress = 100) => {
@@ -1050,11 +1042,12 @@
                     if (hp > 1) { 
                         setHp(h => h - 1); 
                         
-                        const newProfile = { ...profile, hp: hp - 1 };
+                        // Menghapus saved board saat HP berkurang agar papannya di reset (reshuffle otomatis)
+                        const newProfile = { ...profile, hp: hp - 1, savedBoard: null, savedProgress: 100 };
                         setProfile(newProfile); saveProfile(playerName, newProfile);
                         
                         const newB = generateBoard(activeThemeRef.current); 
-                        prepareLevel(level, newB, activeThemeRef.current, score, hp - 1, hints, shuffles); 
+                        prepareLevel(level, newB, activeThemeRef.current, score, hp - 1, hints, shuffles, 100); 
                     } 
                     else {
                         triggerLevelEndStats(true);
@@ -1096,6 +1089,11 @@
                 setProfile(newProfile); 
                 await saveProfile(playerName, newProfile);
             };
+
+            // ===================== PWA GUARD =====================
+            if (!isStandalone) {
+                return <InstallPrompt deferredPrompt={deferredPrompt} />;
+            }
 
             return (
                 <>
@@ -1211,12 +1209,6 @@
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        {!isStandalone && (
-                                            <button onClick={() => setShowInstallPrompt(true)} className="btn-modern bg-pink-50 text-pink-600 px-4 py-2 rounded-xl font-bold border border-pink-100 shadow-sm text-sm relative">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                                                Install
-                                            </button>
-                                        )}
                                         <button onClick={() => setGameState('WALLET')} className="btn-modern bg-gray-50 px-4 py-2 rounded-xl text-gray-700 font-bold border border-gray-100 shadow-sm text-sm relative">
                                             <IconWallet /> Dompet
                                             {profile.balanceIDR > 0 && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>}
@@ -1226,38 +1218,20 @@
 
                                 <div className="flex-1 flex flex-col items-center justify-center p-6 w-full gap-4">
                                     <div className="relative w-full">
-                                        {/* Logika Tombol Lanjutkan Game yang Baru */}
                                         <button onClick={() => {
-                                            if (profile.savedBoard) {
-                                                // Jika ada save game, panggil prepareLevel beserta data yang disimpan (board & progress/waktu)
-                                                prepareLevel(
-                                                    profile.currentLevel, 
-                                                    profile.savedBoard, 
-                                                    activeTheme, 
-                                                    profile.currentScore, 
-                                                    profile.hp, 
-                                                    profile.hints, 
-                                                    profile.shuffles, 
-                                                    profile.savedProgress
-                                                );
+                                            if (profile.savedBoard && profile.savedBoard.length > 0) {
+                                                // Load game yang tersimpan (Lanjutkan Game)
+                                                prepareLevel(profile.currentLevel, profile.savedBoard, activeThemeRef.current, profile.currentScore, profile.hp, profile.hints, profile.shuffles, profile.savedProgress);
                                             } else {
-                                                // Jika tidak ada, main level baru
+                                                // Mulai papan baru
                                                 prepareLevel(profile.currentLevel);
                                             }
                                         }} className="btn-modern bg-pink-500 text-white w-full py-5 text-lg shadow-pink-500/30 shadow-xl rounded-2xl">
-                                            <IconPlay /> {profile.savedBoard ? 'Lanjutkan Main' : profile.currentLevel > 1 ? `Lanjut ke Level ${profile.currentLevel}` : 'Main Sekarang'}
+                                            <IconPlay /> {(profile.currentLevel > 1 || profile.savedBoard) ? 'Lanjutkan Main' : 'Main Sekarang'}
                                         </button>
-                                        
-                                        {!profile.savedBoard && (
-                                            <span className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md">
-                                                Level {profile.currentLevel}
-                                            </span>
-                                        )}
-                                        {profile.savedBoard && (
-                                            <span className="absolute -top-3 -right-2 bg-amber-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
-                                                Tersimpan
-                                            </span>
-                                        )}
+                                        <span className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md">
+                                            Level {profile.currentLevel}
+                                        </span>
                                     </div>
                                     
                                     <div className="grid grid-cols-2 gap-4 w-full">
@@ -1305,19 +1279,11 @@
                                 <h2 className="text-2xl font-black text-gray-800 mb-8 tracking-widest uppercase">Dijeda</h2>
                                 <button onClick={() => setGameState('PLAYING')} className="btn-modern bg-gray-900 text-white w-full max-w-[260px] py-4 rounded-xl font-bold mb-4 shadow-md">Lanjutkan</button>
                                 <button onClick={() => {
-                                    // LOGIKA BARU: Menyimpan Board dan Progress Time!
-                                    const newProfile = { 
-                                        ...profile, 
-                                        hp, hints, shuffles, 
-                                        currentLevel: level, 
-                                        currentScore: score,
-                                        savedBoard: board,         // Simpan sisa tile di meja
-                                        savedProgress: progress    // Simpan sisa waktu
-                                    };
-                                    setProfile(newProfile); 
-                                    saveProfile(playerName, newProfile);
+                                    // MENYIMPAN PAPAN SAAT INI (berserta waktu dan sisa tiles)
+                                    const newProfile = { ...profile, hp, hints, shuffles, currentLevel: level, currentScore: score, savedBoard: board, savedProgress: progress };
+                                    setProfile(newProfile); saveProfile(playerName, newProfile);
                                     setGameState('LOBBY_MAIN');
-                                }} className="btn-modern bg-gray-100 text-gray-600 w-full max-w-[260px] py-4 rounded-xl font-bold border border-gray-200">Simpan & Keluar ke Menu</button>
+                                }} className="btn-modern bg-gray-100 text-gray-600 w-full max-w-[260px] py-4 rounded-xl font-bold">Simpan & Keluar ke Menu</button>
                             </div>
                         )}
 
@@ -1352,11 +1318,6 @@
                             </div>
                         )}
                         
-                        {/* OVERLAY INSTALL MUNCUL JIKA DITEKAN */}
-                        {showInstallPrompt && !isStandalone && (
-                            <InstallPrompt deferredPrompt={deferredPrompt} onClose={() => setShowInstallPrompt(false)} />
-                        )}
-
                     </div>
                 </div>
                 
