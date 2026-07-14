@@ -7,6 +7,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Sweet Connect">
+    
+    <!-- Panggilan untuk icon dan startup screen (Splash Screen) PWA iOS -->
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="apple-touch-startup-image" href="startup.png">
+    <link rel="icon" type="image/png" href="logo.png">
+
     <title>Sweet Connect</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,12 +23,10 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Tambahan library untuk mencetak struk HTML menjadi Gambar -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <script>
         // ================= PWA SETUP INLINE =================
-        const svgIcon = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#ff4fa0'/><stop offset='55%' stop-color='#ec4899'/><stop offset='100%' stop-color='#c2185b'/></linearGradient><linearGradient id='heart' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#ffffff'/><stop offset='100%' stop-color='#ffe4ef'/></linearGradient><linearGradient id='shine' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#ffffff' stop-opacity='.85'/><stop offset='100%' stop-color='#ffffff' stop-opacity='0'/></linearGradient><filter id='glow' x='-40%' y='-40%' width='180%' height='180%'><feGaussianBlur stdDeviation='12' result='blur'/><feMerge><feMergeNode in='blur'/><feMergeNode in='SourceGraphic'/></feMerge></filter><filter id='shadow' x='-40%' y='-40%' width='180%' height='180%'><feDropShadow dx='0' dy='16' stdDeviation='18' flood-color='#891447' flood-opacity='.35'/></filter></defs><rect width='512' height='512' rx='120' fill='url(%23bg)'/><circle cx='256' cy='220' r='150' fill='#ffffff' opacity='.08' filter='url(%23glow)'/><g filter='url(%23shadow)'><path fill='url(%23heart)' d='M256 365 C212 334 145 283 112 233 C81 186 84 127 123 95 C170 57 223 70 256 117 C289 70 342 57 389 95 C428 127 431 186 400 233 C367 283 300 334 256 365Z'/><path d='M175 195 L214 195 L232 170 L274 235 L298 195 L338 195' fill='none' stroke='#ec4899' stroke-width='12' stroke-linecap='round' stroke-linejoin='round'/><circle cx='175' cy='195' r='9' fill='#ec4899'/><circle cx='338' cy='195' r='9' fill='#ec4899'/><path fill='url(%23shine)' d='M160 120 C185 85 235 75 255 112 C225 116 196 142 178 175 C162 162 154 140 160 120Z'/></g><g fill='#fff' opacity='.9'><path d='M110 120l8 18 18 8-18 8-8 18-8-18-18-8 18-8z'/><path d='M405 105l6 13 13 6-13 6-6 13-6-13-13-6 13-6z'/><circle cx='385' cy='330' r='4'/><circle cx='122' cy='315' r='3'/></g><text x='256' y='445' text-anchor='middle' font-family='Inter, Helvetica, Arial, sans-serif' font-size='38' font-weight='700' letter-spacing='10' fill='#ffffff'>CONNECT</text></svg>";
         const manifest = {
             "name": "Sweet Connect",
             "short_name": "Sweet",
@@ -30,7 +34,7 @@
             "display": "standalone",
             "background_color": "#fdf2f8",
             "theme_color": "#ec4899",
-            "icons": [{ "src": svgIcon, "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }]
+            "icons": [{ "src": "logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }]
         };
         const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
         document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
@@ -160,7 +164,6 @@
         const IconGift = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>;
         
         const IconCrown = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-yellow-500"><path d="M4.5 21a1.5 1.5 0 01-1.5-1.5V18h18v1.5a1.5 1.5 0 01-1.5 1.5h-15zM2 7.5L5.5 16h13L22 7.5l-6 3.5L12 4l-4 7-6-3.5z"/></svg>;
-        const IconLogo = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-20 h-20"><rect width="100" height="100" fill="#ec4899" rx="24"/><path d="M50 75.5l-3.3-3C28.2 55.7 16 44.6 16 31c0-11 8.8-19.8 19.8-19.8 6.3 0 12.4 3 16.2 7.7 3.8-4.7 9.9-7.7 16.2-7.7 11 0 19.8 8.8 19.8 19.8 0 13.6-12.2 24.7-30.7 41.5L50 75.5z" fill="white"/></svg>;
         const IconShareApple = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 inline-block mx-1"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>;
         const IconDotsAndroid = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 inline-block mx-1"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>;
 
@@ -183,18 +186,25 @@
                     if(parsed.coins === undefined) parsed.coins = 0;
                     if(parsed.flexCrown === undefined) parsed.flexCrown = false;
                     
-                    // Convert old bonus system to direct states & apply caps
                     if(parsed.hp === undefined) parsed.hp = Math.min(9, 3 + (parsed.bonusHP || 0));
                     if(parsed.hints === undefined) parsed.hints = Math.min(99, 3 + (parsed.bonusHints || 0));
                     if(parsed.shuffles === undefined) parsed.shuffles = Math.min(99, 3 + (parsed.bonusShuffles || 0));
                     
                     if(parsed.currentLevel === undefined) parsed.currentLevel = 1;
                     if(parsed.currentScore === undefined) parsed.currentScore = 0;
+
+                    // Support untuk Resume Game
+                    if(parsed.savedBoard === undefined) parsed.savedBoard = null;
+                    if(parsed.savedProgress === undefined) parsed.savedProgress = 100;
                     
                     return parsed;
                 }
             } catch(e) {}
-            return { tickets: 0, hints: 3, shuffles: 3, hp: 3, balanceIDR: 0, coins: 0, flexCrown: false, unlockedThemes: ['sweets'], currentLevel: 1, currentScore: 0 };
+            return { 
+                tickets: 0, hints: 3, shuffles: 3, hp: 3, balanceIDR: 0, coins: 0, 
+                flexCrown: false, unlockedThemes: ['sweets'], currentLevel: 1, currentScore: 0,
+                savedBoard: null, savedProgress: 100 // Default state untuk save game
+            };
         };
         
         const saveProfile = async (name, profile) => {
@@ -312,7 +322,9 @@
             return (
                 <div className="fixed inset-0 pwa-bg z-[1000] flex flex-col items-center justify-center p-6 text-center">
                     <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm flex flex-col items-center modal-enter">
-                        <div className="mb-6 drop-shadow-md"><IconLogo /></div>
+                        <div className="mb-6 drop-shadow-md">
+                            <img src="logo.png" alt="Sweet Connect Logo" className="w-20 h-20 rounded-3xl shadow-md object-cover" onError={(e) => e.target.style.display='none'} />
+                        </div>
                         <h2 className="text-2xl font-black text-gray-800 mb-2">Tunggu Dulu!</h2>
                         <p className="text-gray-500 font-medium text-sm mb-6 leading-relaxed">
                             Game ini harus di-install ke layar depan HP kamu (Home Screen) supaya bisa dimainkan secara maksimal sayang.
@@ -563,7 +575,7 @@
                     const canvas = await window.html2canvas(receiptRef.current, { scale: 3, backgroundColor: '#ffffff', useCORS: true });
                     const imgData = canvas.toDataURL('image/png');
 
-                    // Auto download gambar dengan nama yang unik berdasar waktu
+                    // Auto download gambar
                     const link = document.createElement('a');
                     const pad = (n) => n.toString().padStart(2, '0');
                     const now = new Date();
@@ -623,7 +635,7 @@
                     </button>
                     <p className="text-xs font-medium text-gray-400 text-center mt-4 w-full max-w-[280px]">Nanti akan keluar struk otomatis dan langsung diarahkan ke WA ayang!</p>
 
-                    {/* HIDDEN RECEIPT TEMPLATE (FOR HTML2CANVAS ONLY) */}
+                    {/* HIDDEN RECEIPT TEMPLATE */}
                     <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', zIndex: -1 }}>
                         <div ref={receiptRef} style={{ width: '300px', backgroundColor: '#fff', padding: '20px 25px', color: '#000', fontFamily: '"Space Mono", monospace' }}>
                             <div style={{ textAlign: 'center', marginBottom: '15px' }}>
@@ -778,8 +790,12 @@
             const [gameState, setGameState] = useState('LOGIN'); 
             const [isLoadingProfile, setIsLoadingProfile] = useState(false);
             
-            // Profile sekarang menyimpan semua state progres agar tidak hilang
-            const [profile, setProfile] = useState({ tickets: 0, hints: 3, shuffles: 3, hp: 3, balanceIDR: 0, coins: 0, flexCrown: false, unlockedThemes: ['sweets'], currentLevel: 1, currentScore: 0 });
+            // Profile state yang support resume board
+            const [profile, setProfile] = useState({ 
+                tickets: 0, hints: 3, shuffles: 3, hp: 3, balanceIDR: 0, coins: 0, 
+                flexCrown: false, unlockedThemes: ['sweets'], currentLevel: 1, currentScore: 0,
+                savedBoard: null, savedProgress: 100 
+            });
             
             const [activeTheme, setActiveTheme] = useState(() => localStorage.getItem('pkmnTheme') || 'sweets');
             const [board, setBoard] = useState([]);
@@ -851,7 +867,7 @@
                 if (isGameOver) {
                     AudioEngine.gameOver();
                     const coinsEarned = Math.floor(score * 0.1);
-                    // Reset semuanya saat nyawa habis (game over)
+                    // Reset semuanya, hapus juga savedBoard
                     const newProfile = { 
                         ...profile, 
                         coins: profile.coins + coinsEarned,
@@ -859,7 +875,9 @@
                         currentScore: 0,
                         hp: 3, 
                         hints: 3, 
-                        shuffles: 3
+                        shuffles: 3,
+                        savedBoard: null,
+                        savedProgress: 100
                     };
                     setProfile(newProfile); await saveProfile(playerName, newProfile);
                     setGameState('GAMEOVER');
@@ -877,7 +895,7 @@
 
                     const nextLevel = level + 1;
                     
-                    // Simpan level & status barang ke cloud otomatis
+                    // Simpan level, hapus savedBoard karena level selanjutnya pakai papan baru
                     const newProfile = {
                         ...profile,
                         tickets: newTickets,
@@ -885,7 +903,9 @@
                         currentScore: score,
                         hp: hp,
                         hints: hints,
-                        shuffles: shuffles
+                        shuffles: shuffles,
+                        savedBoard: null,
+                        savedProgress: 100
                     };
                     setProfile(newProfile); await saveProfile(playerName, newProfile);
 
@@ -893,7 +913,8 @@
                         setShowBoardClear(false); setGameState('WON');
                         setTimeout(() => {
                             const newB = generateBoard(activeThemeRef.current);
-                            prepareLevel(nextLevel, newB, activeThemeRef.current, score, hp, hints, shuffles);
+                            // Set parameter progress default 100 saat level baru
+                            prepareLevel(nextLevel, newB, activeThemeRef.current, score, hp, hints, shuffles, 100);
                         }, gotTicket ? 3000 : 1500); 
                         if(gotTicket) showAlert("Yeay!", "Hebat! Kamu dapat 1 Tiket Kado Misteri. Kumpulkan sebanyak-banyaknya!");
                         else showAlert("Awas!", "Terlalu cepat menyelesaikan level! Sistem mendeteksi aktivitas mencurigakan. Tiket dibatalkan.");
@@ -936,30 +957,39 @@
                 return newBoard;
             }, []);
 
-            const prepareLevel = async (startLevel, providedBoard = null, providedTheme = null, startScore = null, startHp = null, startHints = null, startShuffles = null) => {
+            // Tambahan parameter startProgress untuk Resume Game
+            const prepareLevel = async (startLevel, providedBoard = null, providedTheme = null, startScore = null, startHp = null, startHints = null, startShuffles = null, startProgress = 100) => {
                 const currentT = providedTheme || activeThemeRef.current;
                 const b = providedBoard || generateBoard(currentT);
                 setBoard(b); setLevel(startLevel);
                 
-                // Gunakan nilai yang di pass, jika tidak ambil dari profile saat ini (melanjutkan main)
                 setScore(startScore !== null ? startScore : profile.currentScore);
                 setHp(startHp !== null ? startHp : profile.hp);
                 setHints(startHints !== null ? startHints : profile.hints);
                 setShuffles(startShuffles !== null ? startShuffles : profile.shuffles);
                 
-                if (startLevel === 1) setIsNewRecord(false); 
+                if (startLevel === 1 && !providedBoard) setIsNewRecord(false); 
                 setMatchedTiles([]);
                 
-                setGameState('LOADING_BOARD'); setProgress(0); 
-                let p = 0; const interval = setInterval(() => { p += 25; setProgress(p); }, 100);
-                await new Promise(r => setTimeout(r, 400)); clearInterval(interval); setProgress(100);
+                setGameState('LOADING_BOARD');
+                
+                // Jika board baru, mulai animasi loading dari 0 ke 100.
+                if (startProgress === 100) {
+                    setProgress(0); 
+                    let p = 0; const interval = setInterval(() => { p += 25; setProgress(p); }, 100);
+                    await new Promise(r => setTimeout(r, 400)); clearInterval(interval); setProgress(100);
+                } else {
+                    // Jika resume game, restore sisa waktunya
+                    setProgress(startProgress);
+                    await new Promise(r => setTimeout(r, 400));
+                }
                 
                 setLevelStartTime(Date.now() + 3700);
-                runCountdownThenPlay(Date.now() + 3700);
+                runCountdownThenPlay(Date.now() + 3700, startProgress);
             };
 
-            const runCountdownThenPlay = (startAt) => {
-                setProgress(100); setGameState('COUNTDOWN');
+            const runCountdownThenPlay = (startAt, initialProgress = 100) => {
+                setProgress(initialProgress); setGameState('COUNTDOWN');
                 const steps = [{ label: 3, offset: -3000 }, { label: 2, offset: -2000 }, { label: 1, offset: -1000 }, { label: 'GO!', offset: 0 }];
                 steps.forEach(({ label, offset }) => {
                     const delay = Math.max(0, (startAt + offset) - Date.now());
@@ -1031,7 +1061,6 @@
                     if (hp > 1) { 
                         setHp(h => h - 1); 
                         
-                        // Simpan pengurangan HP ke profil sekalian supaya nggak hilang direfresh
                         const newProfile = { ...profile, hp: hp - 1 };
                         setProfile(newProfile); saveProfile(playerName, newProfile);
                         
@@ -1074,7 +1103,6 @@
             };
 
             const handleWithdrawSuccess = async () => {
-                // Dipanggil HANYA jika WA/download berhasil di dompet
                 const newProfile = { ...profile, balanceIDR: 0 };
                 setProfile(newProfile); 
                 await saveProfile(playerName, newProfile);
@@ -1208,12 +1236,38 @@
 
                                 <div className="flex-1 flex flex-col items-center justify-center p-6 w-full gap-4">
                                     <div className="relative w-full">
-                                        <button onClick={() => prepareLevel(profile.currentLevel)} className="btn-modern bg-pink-500 text-white w-full py-5 text-lg shadow-pink-500/30 shadow-xl rounded-2xl">
-                                            <IconPlay /> {profile.currentLevel > 1 ? 'Lanjutkan Main' : 'Main Sekarang'}
+                                        {/* Logika Tombol Lanjutkan Game yang Baru */}
+                                        <button onClick={() => {
+                                            if (profile.savedBoard) {
+                                                // Jika ada save game, panggil prepareLevel beserta data yang disimpan (board & progress/waktu)
+                                                prepareLevel(
+                                                    profile.currentLevel, 
+                                                    profile.savedBoard, 
+                                                    activeTheme, 
+                                                    profile.currentScore, 
+                                                    profile.hp, 
+                                                    profile.hints, 
+                                                    profile.shuffles, 
+                                                    profile.savedProgress
+                                                );
+                                            } else {
+                                                // Jika tidak ada, main level baru
+                                                prepareLevel(profile.currentLevel);
+                                            }
+                                        }} className="btn-modern bg-pink-500 text-white w-full py-5 text-lg shadow-pink-500/30 shadow-xl rounded-2xl">
+                                            <IconPlay /> {profile.savedBoard ? 'Lanjutkan Main' : profile.currentLevel > 1 ? `Lanjut ke Level ${profile.currentLevel}` : 'Main Sekarang'}
                                         </button>
-                                        <span className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md">
-                                            Level {profile.currentLevel}
-                                        </span>
+                                        
+                                        {!profile.savedBoard && (
+                                            <span className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md">
+                                                Level {profile.currentLevel}
+                                            </span>
+                                        )}
+                                        {profile.savedBoard && (
+                                            <span className="absolute -top-3 -right-2 bg-amber-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
+                                                Tersimpan
+                                            </span>
+                                        )}
                                     </div>
                                     
                                     <div className="grid grid-cols-2 gap-4 w-full">
@@ -1261,11 +1315,19 @@
                                 <h2 className="text-2xl font-black text-gray-800 mb-8 tracking-widest uppercase">Dijeda</h2>
                                 <button onClick={() => setGameState('PLAYING')} className="btn-modern bg-gray-900 text-white w-full max-w-[260px] py-4 rounded-xl font-bold mb-4 shadow-md">Lanjutkan</button>
                                 <button onClick={() => {
-                                    // Simpan state saat keluar dari pause menu
-                                    const newProfile = { ...profile, hp, hints, shuffles, currentLevel: level, currentScore: score };
-                                    setProfile(newProfile); saveProfile(playerName, newProfile);
+                                    // LOGIKA BARU: Menyimpan Board dan Progress Time!
+                                    const newProfile = { 
+                                        ...profile, 
+                                        hp, hints, shuffles, 
+                                        currentLevel: level, 
+                                        currentScore: score,
+                                        savedBoard: board,         // Simpan sisa tile di meja
+                                        savedProgress: progress    // Simpan sisa waktu
+                                    };
+                                    setProfile(newProfile); 
+                                    saveProfile(playerName, newProfile);
                                     setGameState('LOBBY_MAIN');
-                                }} className="btn-modern bg-gray-100 text-gray-600 w-full max-w-[260px] py-4 rounded-xl font-bold">Simpan & Keluar ke Menu</button>
+                                }} className="btn-modern bg-gray-100 text-gray-600 w-full max-w-[260px] py-4 rounded-xl font-bold border border-gray-200">Simpan & Keluar ke Menu</button>
                             </div>
                         )}
 
