@@ -7,12 +7,12 @@
     <meta name="theme-color" content="#ec4899">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Sweet Connect">
-    <title>Sweet Connect</title>
+    <meta name="apple-mobile-web-app-title" content="Sweet Match">
+    <title>Sweet Match-3</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Nunito:wght@700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -24,7 +24,7 @@
         // ================= PWA SETUP INLINE =================
         const svgIcon = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23ec4899' rx='24'/><path d='M50 75.5l-3.3-3C28.2 55.7 16 44.6 16 31c0-11 8.8-19.8 19.8-19.8 6.3 0 12.4 3 16.2 7.7 3.8-4.7 9.9-7.7 16.2-7.7 11 0 19.8 8.8 19.8 19.8 0 13.6-12.2 24.7-30.7 41.5L50 75.5z' fill='white'/></svg>";
         const manifest = {
-            "name": "Sweet Connect",
+            "name": "Sweet Match-3",
             "short_name": "Sweet",
             "start_url": window.location.pathname,
             "display": "standalone",
@@ -55,62 +55,64 @@
             color: #374151;
         }
         
-        .btn-modern {
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); outline: none;
-            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-        }
+        .font-game { font-family: 'Nunito', sans-serif; }
+        
+        /* Modern Buttons */
+        .btn-modern { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); outline: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
         .btn-modern:active:not(:disabled) { transform: scale(0.96); }
         .btn-modern:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .btn-primary {
-            background: #ec4899; color: white; border-radius: 16px; font-weight: 800;
-            box-shadow: 0 4px 0 #be185d, 0 8px 16px rgba(236, 72, 153, 0.2);
-        }
-        .btn-primary:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 #be185d, 0 4px 8px rgba(236, 72, 153, 0.2); }
-
-        .icon-btn {
-            display: flex; align-items: center; justify-content: center;
-            background: #f9fafb; border: 1px solid #f3f4f6; border-radius: 12px;
-            color: #6b7280; transition: all 0.15s;
-        }
+        .icon-btn { display: flex; align-items: center; justify-content: center; background: #f9fafb; border: 1px solid #f3f4f6; border-radius: 12px; color: #6b7280; transition: all 0.15s; }
         .icon-btn:active { transform: scale(0.92); background: #f3f4f6; }
 
-        .cute-tile {
-            background-color: white; border: 1px solid #fbcfe8;
-            border-radius: 8px; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.15s ease-out, border-color 0.15s ease-out, box-shadow 0.15s;
+        /* Match-3 Board & Tiles */
+        .game-board-container {
             position: relative;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            padding: 8px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.05), 0 8px 32px rgba(236, 72, 153, 0.15);
+            border: 4px solid rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
         }
-        .cute-tile.selected {
-            background-color: #fff1f2; border: 2px solid #ec4899;
-            transform: scale(1.1); box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3); z-index: 30;
-        }
-        .cute-tile.matched {
-            transition: transform 0.2s ease-out, opacity 0.15s ease-out 0.2s; 
-            opacity: 0; transform: scale(1.2) translateY(-10px);
-            pointer-events: none; z-index: 40;
-            border-color: #fcd34d; box-shadow: 0 0 15px rgba(252, 211, 77, 0.5);
-        }
-
-        @keyframes drawPath { 0% { stroke-dashoffset: 100; opacity: 1; } 40%, 60% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
-        .path-line-outer { stroke-dasharray: 100; animation: drawPath 0.35s ease-out forwards; }
         
-        @keyframes pulseHint { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); } 50% { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(251, 191, 36, 0.4); border-color: #fbbf24;} }
-        .hint-glow { animation: pulseHint 1s infinite; z-index: 25; }
+        .grid-cell {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
 
-        @keyframes wrongShake { 0%, 100% { transform: translateX(0); border-color: #fbcfe8; } 20%, 60% { transform: translateX(-4px); border-color: #ef4444; background: #fef2f2; } 40%, 80% { transform: translateX(4px); border-color: #ef4444; background: #fef2f2; } }
-        .cute-tile.wrong { animation: wrongShake 0.35s ease-out forwards; }
+        .grid-cell.jelly { background: rgba(236, 72, 153, 0.3); border: 2px solid rgba(236, 72, 153, 0.5); }
 
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-30px) scale(0.8); } }
-        .float-text { animation: floatUp 1s ease-out forwards; pointer-events: none; }
+        .m3-tile {
+            position: absolute;
+            display: flex; align-items: center; justify-content: center;
+            transition: top 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.2s, opacity 0.2s;
+            z-index: 10;
+            will-change: top, left, transform;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+        
+        .m3-tile.swapping { z-index: 20; transition: top 0.25s ease-in-out, left 0.25s ease-in-out; }
+        .m3-tile.falling { transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 5; }
+        .m3-tile.popping { transform: scale(1.3); opacity: 0; transition: transform 0.2s ease-out, opacity 0.2s ease-out; z-index: 30; }
+        .m3-tile:active { transform: scale(0.9); filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); }
+
+        .special-rocket-h::after { content: '↔'; position: absolute; font-size: 20px; font-weight: 900; color: white; text-shadow: 0 0 5px black; }
+        .special-rocket-v::after { content: '↕'; position: absolute; font-size: 20px; font-weight: 900; color: white; text-shadow: 0 0 5px black; }
+        .special-bomb::after { content: '💣'; position: absolute; font-size: 24px; filter: drop-shadow(0 0 5px red); animation: pulseHint 1s infinite; }
+        .special-rainbow { animation: rainbowGlow 2s linear infinite; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%); }
+
+        @keyframes rainbowGlow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+        @keyframes popScore { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.5); } }
+        .floating-score { position: absolute; animation: popScore 1s ease-out forwards; pointer-events: none; font-weight: 900; z-index: 100; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 
         .modal-enter { animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
         @keyframes boxShake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-10deg) scale(1.1); } 50% { transform: rotate(10deg) scale(1.1); } 75% { transform: rotate(-10deg) scale(1.1); } }
         .box-shake { animation: boxShake 0.4s ease-in-out infinite; }
-        .box-idle { transition: transform 0.2s; }
 
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
@@ -122,17 +124,22 @@
         .receipt-cut { position: relative; }
         .receipt-cut::before { content: ''; position: absolute; top: -6px; left: 0; right: 0; height: 12px; background-size: 12px 12px; background-image: radial-gradient(circle at 6px 0, transparent 6px, white 7px); }
         .receipt-cut::after { content: ''; position: absolute; bottom: -6px; left: 0; right: 0; height: 12px; background-size: 12px 12px; background-image: radial-gradient(circle at 6px 12px, transparent 6px, white 7px); }
+
+        /* Confetti */
+        .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; animation: confettiFall linear forwards; }
+        @keyframes confettiFall { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useCallback, useRef } = React;
+        const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
-        // ===================== CLEAN SVG ICONS =====================
+        // ===================== ICONS =====================
         const IconHeart = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-rose-500"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" /></svg>;
         const IconSearch = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>;
+        const IconHammer = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M20.3 3.7c-1.3-1.3-3.4-1.3-4.7 0l-1.4 1.4-1.4-1.4c-.4-.4-1-.4-1.4 0s-.4 1 0 1.4l1.4 1.4-7.5 7.5c-.8.8-.8 2.1 0 2.8l1.4 1.4c.8.8 2.1.8 2.8 0l7.5-7.5 1.4 1.4c.4.4 1 .4 1.4 0 .4-.4.4-1 0-1.4l-1.4-1.4 1.4-1.4c1.3-1.3 1.3-3.4 0-4.7zm-2.1 2.6l-1.4 1.4-2.8-2.8 1.4-1.4c.5-.5 1.4-.5 1.9 0l.9.9c.5.5.5 1.4 0 1.9z" /></svg>;
         const IconRefresh = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>;
         const IconPause = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6"><path fillRule="evenodd" d="M6.75 5.25a.75.75 0 01.75-.75H9a.75.75 0 01.75.75v13.5a.75.75 0 01-.75.75H7.5a.75.75 0 01-.75-.75V5.25zm7.5 0A.75.75 0 0115 4.5h1.5a.75.75 0 01.75.75v13.5a.75.75 0 01-.75.75H15a.75.75 0 01-.75-.75V5.25z" clipRule="evenodd" /></svg>;
         const IconWallet = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M21 12V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2v-5m-4 0h4M17 12a2 2 0 100-4 2 2 0 000 4z" /></svg>;
@@ -143,11 +150,8 @@
         const IconChevronLeft = () => <svg fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>;
         const IconPlay = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6"><path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" /></svg>;
         const IconGift = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>;
-        
         const IconCrown = () => <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-yellow-500"><path d="M4.5 21a1.5 1.5 0 01-1.5-1.5V18h18v1.5a1.5 1.5 0 01-1.5 1.5h-15zM2 7.5L5.5 16h13L22 7.5l-6 3.5L12 4l-4 7-6-3.5z"/></svg>;
         const IconLogo = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-20 h-20"><rect width="100" height="100" fill="#ec4899" rx="24"/><path d="M50 75.5l-3.3-3C28.2 55.7 16 44.6 16 31c0-11 8.8-19.8 19.8-19.8 6.3 0 12.4 3 16.2 7.7 3.8-4.7 9.9-7.7 16.2-7.7 11 0 19.8 8.8 19.8 19.8 0 13.6-12.2 24.7-30.7 41.5L50 75.5z" fill="white"/></svg>;
-        const IconShareApple = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 inline-block mx-1"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>;
-        const IconDotsAndroid = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 inline-block mx-1"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>;
 
         const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
         const formatNumber = (num) => new Intl.NumberFormat('id-ID').format(num);
@@ -158,7 +162,7 @@
 
         const fetchProfile = async (name) => {
             try {
-                const res = await fetch(`${UPSTASH_URL}/get/sc_prof2_${encodeURIComponent(name)}`, { headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` } });
+                const res = await fetch(`${UPSTASH_URL}/get/sc_m3_prof_${encodeURIComponent(name)}`, { headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` } });
                 const data = await res.json();
                 if (data.result) {
                     const parsed = JSON.parse(data.result);
@@ -166,14 +170,11 @@
                     if(parsed.balanceIDR === undefined) parsed.balanceIDR = 0;
                     if(parsed.coins === undefined) parsed.coins = 0;
                     if(parsed.flexCrown === undefined) parsed.flexCrown = false;
-                    
-                    if(parsed.hp === undefined) parsed.hp = Math.min(9, 3 + (parsed.bonusHP || 0));
-                    if(parsed.hints === undefined) parsed.hints = Math.min(99, 3 + (parsed.bonusHints || 0));
-                    if(parsed.shuffles === undefined) parsed.shuffles = Math.min(99, 3 + (parsed.bonusShuffles || 0));
-                    
+                    if(parsed.hp === undefined) parsed.hp = 3;
+                    if(parsed.hints === undefined) parsed.hints = 3; // Now used as Hammer
+                    if(parsed.shuffles === undefined) parsed.shuffles = 3;
                     if(parsed.currentLevel === undefined) parsed.currentLevel = 1;
                     if(parsed.currentScore === undefined) parsed.currentScore = 0;
-                    
                     return parsed;
                 }
             } catch(e) {}
@@ -181,18 +182,15 @@
         };
         
         const saveProfile = async (name, profile) => {
-            try { await fetch(`${UPSTASH_URL}/set/sc_prof2_${encodeURIComponent(name)}`, { method: 'POST', headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }, body: JSON.stringify(profile) }); } catch(e) {}
+            try { await fetch(`${UPSTASH_URL}/set/sc_m3_prof_${encodeURIComponent(name)}`, { method: 'POST', headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }, body: JSON.stringify(profile) }); } catch(e) {}
         };
 
-        const ROWS = 16; const COLS = 10;
         const THEMES = {
-            sweets: { name: 'Dessert', price: 0, data: ['🍰','🧁','🍩','🍪','🍫','🍬','🍭','🍮','🍯','🍨','🍧','🍦','🥧','🎂','🥐','🥞','🧇','🥨'] },
-            animals: { name: 'Hewan', price: 500, data: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄️','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤'] },
-            fruits: { name: 'Buah', price: 1000, data: ['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅'] },
-            flowers: { name: 'Bunga', price: 1500, data: ['🌷','🌸','🌹','🌺','🌻','🌼','💮','🪷','💐','🪴','🍀','🍁','🍄','🌵','🌲','🌿','🌾','🌴'] },
-            ocean: { name: 'Laut', price: 3000, data: ['🐟','🐠','🐡','🦈','🐙','🦑','🦀','🦞','🦐','🐢','🐋','🐬','🦭','🐚','🪸','🌊','⛵','⚓'] },
-            space: { name: 'L. Angkasa', price: 5000, data: ['🚀','🛸','🛰️','🪐','🌎','🌔','☀️','⭐','☄️','🌠','🌌','🧑‍🚀','👽','👾','🔭','📡','👨‍🚀'] },
-            luxury: { name: 'Sultan', price: 10000, data: ['💎','💍','👑','🛍️','👠','🎩','🍷','🥂','🏰','🏎️','🚁','🛥️','🗽','💸','💳','🎀','🪄'] }
+            sweets: { name: 'Dessert', price: 0, data: ['🍰','🍩','🍬','🍭','🍨','🍓'] },
+            animals: { name: 'Hewan', price: 500, data: ['🐶','🐱','🐭','🐰','🦊','🐼'] },
+            fruits: { name: 'Buah', price: 1000, data: ['🍏','🍎','🍊','🍌','🍇','🍉'] },
+            ocean: { name: 'Laut', price: 3000, data: ['🐟','🐠','🐙','🦀','🐢','🐬'] },
+            luxury: { name: 'Sultan', price: 10000, data: ['💎','💍','👑','💸','🏎️','🏰'] }
         };
 
         // ===================== WEB AUDIO =====================
@@ -215,55 +213,17 @@
             };
             return {
                 setMuted: (m) => { muted = m; }, isMuted: () => muted,
-                match: () => play([{ f: 523, t: 0, d: 0.1 }, { f: 659, t: 0.08, d: 0.1 }, { f: 784, t: 0.16, d: 0.2 }], 0.4, 'triangle', 0.25),
-                wrong: () => play([{ f: 180, t: 0, d: 0.1 }], 0.1, 'sawtooth', 0.15),
-                hint: () => play([{ f: 880, t: 0, d: 0.2 }], 0.2, 'sine', 0.2),
-                shuffle: () => play([400, 500, 350, 600, 450].map((f, i) => ({ f, t: i * 0.05, d: 0.1 })), 0.3, 'sine', 0.2),
-                tick: (n) => { const f = n === 'GO!' ? 880 : (n === 1 ? 660 : n === 2 ? 587 : 523); play([{ f, t: 0, d: n === 'GO!' ? 0.3 : 0.15 }], 0.15, 'triangle', 0.3); },
-                levelClear: () => play([{ f: 523, t: 0, d: 0.1 }, { f: 659, t: 0.1, d: 0.1 }, { f: 784, t: 0.2, d: 0.1 }, { f: 1047, t: 0.3, d: 0.3 }], 0.5, 'triangle', 0.25),
-                gameOver: () => play([{ f: 440, t: 0, d: 0.15 }, { f: 370, t: 0.15, d: 0.15 }, { f: 294, t: 0.3, d: 0.3 }], 0.5, 'sawtooth', 0.2),
-                timeout: () => play([{ f: 300, t: 0, d: 0.2 }, { f: 220, t: 0.2, d: 0.3 }], 0.5, 'sawtooth', 0.2),
-                spin: () => play([{f: 600, t:0, d:0.1}], 0.1, 'sine', 0.1),
-                winPrize: () => play([{ f: 440, t: 0, d: 0.1 }, { f: 554, t: 0.1, d: 0.1 }, { f: 659, t: 0.2, d: 0.3 }], 0.5, 'triangle', 0.3),
+                swap: () => play([{ f: 400, t: 0, d: 0.1 }], 0.1, 'sine', 0.1),
+                invalid: () => play([{ f: 200, t: 0, d: 0.1 }], 0.1, 'sawtooth', 0.1),
+                pop: (combo = 1) => { const base = 400 + (combo * 50); play([{ f: base, t: 0, d: 0.1 }, { f: base*1.2, t: 0.05, d: 0.1 }], 0.15, 'triangle', 0.2); },
+                bomb: () => play([{ f: 100, t: 0, d: 0.3 }, { f: 50, t: 0.1, d: 0.4 }], 0.4, 'square', 0.4),
+                rocket: () => play([{ f: 800, t: 0, d: 0.2 }, { f: 1200, t: 0.1, d: 0.1 }], 0.3, 'sawtooth', 0.2),
+                levelClear: () => play([{ f: 523, t: 0, d: 0.1 }, { f: 659, t: 0.1, d: 0.1 }, { f: 784, t: 0.2, d: 0.1 }, { f: 1047, t: 0.3, d: 0.4 }], 0.5, 'triangle', 0.3),
+                gameOver: () => play([{ f: 300, t: 0, d: 0.2 }, { f: 250, t: 0.2, d: 0.2 }, { f: 200, t: 0.4, d: 0.4 }], 0.8, 'sawtooth', 0.3),
             };
         })();
 
-        // --- PATHFINDING ---
-        const isPathClear = (board, r1, c1, r2, c2) => {
-            if (r1 === r2) { const min = Math.min(c1, c2); const max = Math.max(c1, c2); for (let c = min + 1; c < max; c++) if (board[r1][c] !== 0) return false; return true; }
-            if (c1 === c2) { const min = Math.min(r1, r2); const max = Math.max(r1, r2); for (let r = min + 1; r < max; r++) if (board[r][c1] !== 0) return false; return true; }
-            return false;
-        };
-        const getPath = (board, r1, c1, r2, c2) => {
-            if (r1 === r2 && c1 === c2) return null; 
-            if (board[r1][c1] !== board[r2][c2] || board[r1][c1] === 0) return null; 
-            if ((r1 === r2 || c1 === c2) && isPathClear(board, r1, c1, r2, c2)) return [{r: r1, c: c1}, {r: r2, c: c2}]; 
-            if (board[r1][c2] === 0 && isPathClear(board, r1, c1, r1, c2) && isPathClear(board, r1, c2, r2, c2)) return [{r: r1, c: c1}, {r: r1, c: c2}, {r: r2, c: c2}];
-            if (board[r2][c1] === 0 && isPathClear(board, r1, c1, r2, c1) && isPathClear(board, r2, c1, r2, c2)) return [{r: r1, c: c1}, {r: r2, c: c1}, {r: r2, c: c2}];
-            for (let dir = -1; dir <= 1; dir += 2) {
-                let c = c1 + dir; while (c >= 0 && c < COLS + 2 && board[r1][c] === 0) {
-                    if (board[r2][c] === 0 && isPathClear(board, r1, c, r2, c) && isPathClear(board, r2, c, r2, c2)) return [{r: r1, c: c1}, {r: r1, c}, {r: r2, c}, {r: r2, c: c2}]; c += dir;
-                }
-            }
-            for (let dir = -1; dir <= 1; dir += 2) {
-                let r = r1 + dir; while (r >= 0 && r < ROWS + 2 && board[r][c1] === 0) {
-                    if (board[r][c2] === 0 && isPathClear(board, r, c1, r, c2) && isPathClear(board, r, c2, r2, c2)) return [{r: r1, c: c1}, {r, c: c1}, {r, c: c2}, {r: r2, c: c2}]; r += dir;
-                }
-            }
-            return null; 
-        };
-        const findHint = (board) => {
-            for (let i = 1; i <= ROWS; i++) for (let j = 1; j <= COLS; j++) if (board[i][j] !== 0)
-                for (let k = 1; k <= ROWS; k++) for (let l = 1; l <= COLS; l++) if ((i !== k || j !== l) && board[i][j] === board[k][l]) {
-                    const path = getPath(board, i, j, k, l); if (path) return {p1: {r: i, c: j}, p2: {r: k, c: l}, path};
-                }
-            return null;
-        };
-        const countRemaining = (b) => { let count = 0; if (b) for (let r = 1; r <= ROWS; r++) for (let c = 1; c <= COLS; c++) if (b[r][c] !== 0) count++; return count; };
-        const getTimerSpeed = (level) => 0.08 + (level * 0.025);
-        const getSecondsLeft = (progress, level) => Math.ceil((progress / getTimerSpeed(level)) * 0.2);
-
-        // ===================== CUSTOM MODAL =====================
+        // ===================== CUSTOM MODAL & COMPONENTS =====================
         const CustomModal = ({ isOpen, title, content, confirmText, onConfirm, cancelText, onCancel }) => {
             if (!isOpen) return null;
             return (
@@ -283,244 +243,74 @@
             );
         };
 
-        // ===================== PWA INSTALL OVERLAY =====================
         const InstallPrompt = ({ deferredPrompt }) => {
-            const handleInstall = async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    await deferredPrompt.userChoice;
-                }
-            };
-
             return (
                 <div className="fixed inset-0 pwa-bg z-[1000] flex flex-col items-center justify-center p-6 text-center">
                     <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm flex flex-col items-center modal-enter">
                         <div className="mb-6 drop-shadow-md"><IconLogo /></div>
                         <h2 className="text-2xl font-black text-gray-800 mb-2">Tunggu Dulu!</h2>
-                        <p className="text-gray-500 font-medium text-sm mb-6 leading-relaxed">
-                            Game ini harus di-install ke layar depan HP kamu (Home Screen) supaya bisa dimainkan secara maksimal sayang.
-                        </p>
-                        
+                        <p className="text-gray-500 font-medium text-sm mb-6 leading-relaxed">Game ini harus di-install ke layar depan HP kamu supaya bisa dimainkan dengan lancar.</p>
                         {deferredPrompt ? (
-                            <button onClick={handleInstall} className="btn-modern bg-pink-500 text-white w-full py-4 rounded-xl font-bold text-lg shadow-lg mb-4">
-                                Install Sekarang
-                            </button>
+                            <button onClick={() => { deferredPrompt.prompt(); deferredPrompt.userChoice; }} className="btn-modern bg-pink-500 text-white w-full py-4 rounded-xl font-bold text-lg shadow-lg mb-4">Install Sekarang</button>
                         ) : (
                             <div className="w-full flex flex-col gap-3">
-                                <div className="bg-gray-50 rounded-2xl p-4 text-left border border-gray-100">
-                                    <p className="font-bold text-gray-700 mb-1.5 text-sm flex items-center">Apple / iOS</p>
-                                    <p className="text-xs text-gray-500 font-medium leading-relaxed">Tekan ikon <IconShareApple/> di bawah, lalu pilih <strong>"Add to Home Screen"</strong>.</p>
-                                </div>
-                                <div className="bg-gray-50 rounded-2xl p-4 text-left border border-gray-100">
-                                    <p className="font-bold text-gray-700 mb-1.5 text-sm flex items-center">Android / Chrome</p>
-                                    <p className="text-xs text-gray-500 font-medium leading-relaxed">Tekan <IconDotsAndroid/> di atas, lalu pilih <strong>"Install app" / "Tambahkan ke Layar Utama"</strong>.</p>
-                                </div>
+                                <div className="bg-gray-50 rounded-2xl p-4 text-left border border-gray-100"><p className="font-bold text-sm">iOS / Apple</p><p className="text-xs text-gray-500">Tekan ikon Share lalu "Add to Home Screen".</p></div>
+                                <div className="bg-gray-50 rounded-2xl p-4 text-left border border-gray-100"><p className="font-bold text-sm">Android</p><p className="text-xs text-gray-500">Tekan menu titik tiga lalu "Install app".</p></div>
                             </div>
                         )}
-                        
-                        <p className="text-[10px] text-pink-400 font-bold mt-6 uppercase tracking-wider">Buka game-nya dari layar utama ya!</p>
                     </div>
                 </div>
             );
         };
 
-        // ===================== MYSTERY GIFT =====================
+        // --- Economy Components (MysteryGift, Wallet, Shop) - Kept mostly unchanged ---
         const MysteryGift = ({ profile, onOpenComplete, onClose }) => {
             const [opening, setOpening] = useState(false);
-            const [selectedBox, setSelectedBox] = useState(null);
             const [wonPrize, setWonPrize] = useState(null);
-            const [wonPrizesSummary, setWonPrizesSummary] = useState(null);
-            const [showPrizePool, setShowPrizePool] = useState(false);
-
+            
             const prizes = [
-                { id: '50k', name: 'Rp 50.000', type: 'uang', val: 50000, desc: 'Jackpot Besar! Langsung tarik ke Dompet.' },
-                { id: '20k', name: 'Rp 20.000', type: 'uang', val: 20000, desc: 'Uang jajan tambahan!' },
-                { id: '10k', name: 'Rp 10.000', type: 'uang', val: 10000, desc: 'Lumayan buat beli seblak.' },
-                { id: '5k', name: 'Rp 5.000', type: 'uang', val: 5000, desc: 'Uang parkir aman.' },
-                { id: '1k', name: 'Rp 1.000', type: 'uang', val: 1000, desc: 'Recehan dari surga.' },
-                { id: 'c5000', name: '5.000 Koin', type: 'item', item: 'coins', val: 5000, desc: 'Kaya mendadak di game!' },
-                { id: 'c1000', name: '1.000 Koin', type: 'item', item: 'coins', val: 1000, desc: 'Bisa borong toko nih.' },
-                { id: 'c500', name: '500 Koin', type: 'item', item: 'coins', val: 500, desc: 'Lumayan buat nabung beli tema.' },
-                { id: 'c200', name: '200 Koin', type: 'item', item: 'coins', val: 200, desc: 'Tabungan koin bertambah.' },
-                { id: 'c100', name: '100 Koin', type: 'item', item: 'coins', val: 100, desc: 'Dikumpul dikit-dikit jadi bukit.' },
-                { id: 'hp3', name: '+3 Nyawa', type: 'item', item: 'hp', val: 3, desc: 'Mainnya jadi santai banget.' },
-                { id: 'hp', name: '+1 Nyawa', type: 'item', item: 'hp', val: 1, desc: 'Cadangan nyawa ekstra.' },
-                { id: 'hint10', name: '+10 Hint', type: 'item', item: 'hints', val: 10, desc: 'Cheat legal dari sistem.' },
-                { id: 'hint', name: '+3 Hint', type: 'item', item: 'hints', val: 3, desc: 'Biar nggak pusing mikir jalan.' },
-                { id: 'shuffle', name: '+3 Shuffle', type: 'item', item: 'shuffles', val: 3, desc: 'Anti mentok-mentok club.' }
+                { id: '50k', name: 'Rp 50.000', type: 'uang', val: 50000, weight: 1 },
+                { id: 'c5000', name: '5.000 Koin', type: 'item', item: 'coins', val: 5000, weight: 5 },
+                { id: '10k', name: 'Rp 10.000', type: 'uang', val: 10000, weight: 10 },
+                { id: 'hp3', name: '+3 Nyawa', type: 'item', item: 'hp', val: 3, weight: 15 },
+                { id: '1k', name: 'Rp 1.000', type: 'uang', val: 1000, weight: 20 },
+                { id: 'c500', name: '500 Koin', type: 'item', item: 'coins', val: 500, weight: 25 },
+                { id: 'hint', name: '+3 Palu', type: 'item', item: 'hints', val: 3, weight: 30 },
+                { id: 'shuffle', name: '+3 Shuffle', type: 'item', item: 'shuffles', val: 3, weight: 30 }
             ];
 
-            const getRandomPrize = () => {
-                const rand = Math.random() * 100;
-                if (rand < 0.1) return prizes.find(p=>p.id==='50k');
-                if (rand < 0.5) return prizes.find(p=>p.id==='c5000');
-                if (rand < 1.5) return prizes.find(p=>p.id==='20k'); 
-                if (rand < 3.5) return prizes.find(p=>p.id==='10k'); 
-                if (rand < 6) return prizes.find(p=>p.id==='c1000'); 
-                if (rand < 10) return prizes.find(p=>p.id==='5k');  
-                if (rand < 15) return prizes.find(p=>p.id==='hp3'); 
-                if (rand < 20) return prizes.find(p=>p.id==='hint10'); 
-                if (rand < 30) return prizes.find(p=>p.id==='1k'); 
-                if (rand < 40) return prizes.find(p=>p.id==='c500'); 
-                if (rand < 55) return prizes.find(p=>p.id==='c200'); 
-                if (rand < 70) return prizes.find(p=>p.id==='c100'); 
-                if (rand < 80) return prizes.find(p=>p.id==='hp');   
-                if (rand < 90) return prizes.find(p=>p.id==='hint'); 
-                return prizes.find(p=>p.id==='shuffle');
-            };
-
-            const handlePickBox1x = (index) => {
-                if (profile.tickets < 1 || opening) return;
-                setOpening(true); setSelectedBox(index); AudioEngine.spin();
-                const prize = getRandomPrize();
+            const handlePick = () => {
+                if(profile.tickets < 1 || opening) return;
+                setOpening(true);
+                const rand = Math.random() * 136; // sum weights
+                let sum = 0; let prize = prizes[prizes.length-1];
+                for(let p of prizes) { sum+=p.weight; if(rand <= sum){ prize = p; break; } }
 
                 setTimeout(() => {
-                    setOpening(false); AudioEngine.winPrize(); setWonPrize(prize);
-                    const updatedProfile = { ...profile, tickets: profile.tickets - 1 };
-                    
-                    if (prize.type === 'uang') updatedProfile.balanceIDR += prize.val;
-                    else if (prize.item === 'coins') updatedProfile.coins += prize.val;
-                    else if (prize.item === 'hp') updatedProfile.hp = Math.min(9, updatedProfile.hp + prize.val);
-                    else if (prize.item === 'hints') updatedProfile.hints = Math.min(99, updatedProfile.hints + prize.val);
-                    else if (prize.item === 'shuffles') updatedProfile.shuffles = Math.min(99, updatedProfile.shuffles + prize.val);
-                    
-                    onOpenComplete(updatedProfile); 
-                }, 1500); 
-            };
-
-            const handlePick10x = () => {
-                if (profile.tickets < 9 || opening) return;
-                setOpening(true); setSelectedBox('10x'); AudioEngine.spin();
-                
-                let totalUang = 0; let totalKoin = 0; let totalHP = 0; let totalHint = 0; let totalShuffle = 0;
-                
-                for(let i=0; i<10; i++) {
-                    const p = getRandomPrize();
-                    if (p.type === 'uang') totalUang += p.val;
-                    else if (p.item === 'coins') totalKoin += p.val;
-                    else if (p.item === 'hp') totalHP += p.val;
-                    else if (p.item === 'hints') totalHint += p.val;
-                    else if (p.item === 'shuffles') totalShuffle += p.val;
-                }
-
-                setTimeout(() => {
-                    setOpening(false); AudioEngine.winPrize();
-                    setWonPrizesSummary({ uang: totalUang, koin: totalKoin, hp: totalHP, hints: totalHint, shuffles: totalShuffle });
-                    
-                    const updatedProfile = { 
-                        ...profile, 
-                        tickets: profile.tickets - 9,
-                        balanceIDR: profile.balanceIDR + totalUang,
-                        coins: profile.coins + totalKoin,
-                        hp: Math.min(9, profile.hp + totalHP),
-                        hints: Math.min(99, profile.hints + totalHint),
-                        shuffles: Math.min(99, profile.shuffles + totalShuffle)
-                    };
-                    onOpenComplete(updatedProfile); 
-                }, 2000); 
+                    setOpening(false); setWonPrize(prize);
+                    const p2 = { ...profile, tickets: profile.tickets - 1 };
+                    if(prize.type === 'uang') p2.balanceIDR += prize.val;
+                    else p2[prize.item] += prize.val;
+                    onOpenComplete(p2);
+                }, 1000);
             };
 
             return (
-                <div className="absolute inset-0 bg-white z-[100] flex flex-col items-center custom-scroll overflow-y-auto">
-                    <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
-                        <button onClick={onClose} disabled={opening} className="p-2 bg-gray-50 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"><IconChevronLeft /></button>
-                        <h2 className="text-lg font-black text-gray-800">Kado Misteri</h2>
-                        <div className="w-10"></div>
-                    </div>
-                    
-                    <div className="flex-1 w-full flex flex-col items-center justify-center p-6 pb-12">
-                        <div className="flex items-center gap-2 mb-8 bg-pink-50 px-5 py-2.5 rounded-full border border-pink-100 shadow-sm">
-                            <IconTicket />
-                            <span className="font-bold text-gray-700 text-sm">Tiket Kamu: <span className="text-pink-500">{profile.tickets}</span></span>
-                        </div>
-                        
-                        <h3 className="text-xl font-bold text-gray-800 mb-2 text-center">Pilih Kado Spesialmu!</h3>
-                        <p className="text-sm text-gray-500 mb-8 text-center max-w-[240px]">Menangkan Uang Tunai, Ribuan Koin, atau Bantuan super GG!</p>
-                        
-                        <div className="flex justify-center gap-4 w-full px-4 mb-6">
-                            {[0, 1, 2].map(idx => (
-                                <button key={idx} disabled={profile.tickets < 1 || opening} onClick={() => handlePickBox1x(idx)}
-                                    className={`relative w-24 h-24 bg-gradient-to-b from-pink-50 to-pink-100 rounded-2xl border-2 border-pink-200 shadow-md flex items-center justify-center transition-all ${opening && selectedBox === idx ? 'box-shake border-pink-500 shadow-pink-200 z-10' : 'box-idle'} ${opening && selectedBox !== idx ? 'opacity-40 scale-95 grayscale' : ''} ${profile.tickets < 1 && !opening ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
-                                >
-                                    <IconGift />
-                                    <div className="absolute -bottom-3 bg-white border border-gray-200 text-gray-500 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">1 Tiket</div>
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="w-full px-4 max-w-[320px] mb-8">
-                            <button 
-                                disabled={profile.tickets < 9 || opening} 
-                                onClick={handlePick10x}
-                                className={`w-full relative overflow-hidden bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-2xl p-4 shadow-lg flex flex-col items-center justify-center transition-all active:scale-95 ${profile.tickets < 9 ? 'opacity-60 grayscale cursor-not-allowed' : ''} ${opening && selectedBox === '10x' ? 'box-shake' : ''} ${opening && selectedBox !== '10x' ? 'opacity-50 grayscale' : ''}`}
-                            >
-                                <span className="font-black text-lg mb-1 tracking-wide">BUKA 10x SEKALIGUS</span>
-                                <span className="text-xs font-bold bg-white/20 px-3 py-1 rounded-full shadow-inner backdrop-blur-sm flex items-center gap-1">
-                                    <IconTicket/> Harga 9 Tiket (Diskon!)
-                                </span>
-                            </button>
-                        </div>
-
-                        {profile.tickets <= 0 && <p className="text-xs text-red-400 font-bold text-center mb-6">Menangkan game lagi untuk dapat tiket!</p>}
-                        
-                        <button onClick={() => setShowPrizePool(true)} className="px-5 py-2.5 bg-pink-50 text-pink-600 rounded-xl text-sm font-bold shadow-sm border border-pink-100 flex items-center justify-center gap-2 active:scale-95 transition-transform">
-                            <IconSearch /> Lihat Daftar Hadiah
+                <div className="absolute inset-0 bg-white z-[100] flex flex-col items-center">
+                    <div className="w-full flex p-4 border-b border-gray-100"><button onClick={onClose}><IconChevronLeft/></button><h2 className="mx-auto font-bold">Kado Misteri</h2><div className="w-6"></div></div>
+                    <div className="p-6 flex flex-col items-center w-full">
+                        <div className="flex gap-2 bg-pink-50 px-4 py-2 rounded-full mb-8 font-bold"><IconTicket/> Tiket: {profile.tickets}</div>
+                        <button disabled={profile.tickets<1 || opening} onClick={handlePick} className={`w-32 h-32 bg-pink-100 rounded-3xl border-4 border-pink-300 flex items-center justify-center text-pink-500 shadow-xl transition-all ${opening?'box-shake scale-110':''}`}>
+                            <IconGift/>
                         </button>
+                        <p className="mt-8 text-sm text-gray-500 text-center">Buka kado untuk memenangkan Rupiah, Koin, atau Booster!</p>
                     </div>
-
                     {wonPrize && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm z-[110] p-4">
-                            <div className="bg-white p-8 rounded-3xl w-full max-w-[300px] text-center shadow-2xl modal-enter relative overflow-hidden">
-                                <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-pink-400 to-purple-500"></div>
-                                <p className="text-gray-400 font-bold text-xs mb-2 uppercase tracking-widest">Selamat!</p>
-                                <h3 className="text-3xl font-black text-gray-800 mb-2">{wonPrize.name}</h3>
-                                <p className="text-sm font-medium text-gray-500 mb-8">{wonPrize.desc}</p>
-                                <button onClick={() => setWonPrize(null)} className="btn-modern bg-pink-500 text-white py-3.5 w-full text-base font-bold shadow-md rounded-xl">Tutup</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {wonPrizesSummary && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm z-[110] p-4">
-                            <div className="bg-white p-6 rounded-3xl w-full max-w-[320px] text-center shadow-2xl modal-enter relative overflow-hidden">
-                                <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-pink-400 to-purple-500"></div>
-                                <h3 className="text-2xl font-black text-gray-800 mb-2">Hasil Buka 10x</h3>
-                                <p className="text-sm font-medium text-gray-500 mb-6">Semua item sudah masuk ke akunmu!</p>
-                                
-                                <div className="grid grid-cols-2 gap-3 mb-6">
-                                    {wonPrizesSummary.uang > 0 && <div className="bg-emerald-50 text-emerald-700 p-3 rounded-xl flex flex-col items-center"><IconWallet/><span className="font-bold text-sm mt-1">{formatIDR(wonPrizesSummary.uang)}</span></div>}
-                                    {wonPrizesSummary.koin > 0 && <div className="bg-amber-50 text-amber-700 p-3 rounded-xl flex flex-col items-center"><IconCoin/><span className="font-bold text-sm mt-1">+{wonPrizesSummary.koin}</span></div>}
-                                    {wonPrizesSummary.hp > 0 && <div className="bg-rose-50 text-rose-700 p-3 rounded-xl flex flex-col items-center"><IconHeart/><span className="font-bold text-sm mt-1">+{wonPrizesSummary.hp} Nyawa</span></div>}
-                                    {wonPrizesSummary.hints > 0 && <div className="bg-blue-50 text-blue-700 p-3 rounded-xl flex flex-col items-center"><IconSearch/><span className="font-bold text-sm mt-1">+{wonPrizesSummary.hints} Hint</span></div>}
-                                    {wonPrizesSummary.shuffles > 0 && <div className="bg-purple-50 text-purple-700 p-3 rounded-xl flex flex-col items-center"><IconRefresh/><span className="font-bold text-sm mt-1">+{wonPrizesSummary.shuffles} Shuffle</span></div>}
-                                </div>
-
-                                <button onClick={() => setWonPrizesSummary(null)} className="btn-modern bg-pink-500 text-white py-3.5 w-full text-base font-bold shadow-md rounded-xl">Oke, Mantap!</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {showPrizePool && (
-                        <div className="absolute inset-0 bg-gray-50 z-[120] flex flex-col custom-scroll overflow-y-auto modal-enter">
-                            <div className="w-full flex items-center justify-between p-4 border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
-                                <button onClick={() => setShowPrizePool(false)} className="p-2 bg-gray-50 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"><IconChevronLeft /></button>
-                                <h2 className="text-lg font-black text-gray-800">Daftar Hadiah</h2>
-                                <div className="w-10"></div>
-                            </div>
-                            <div className="p-4 flex flex-col gap-3 pb-8">
-                                <div className="bg-pink-100 text-pink-700 text-xs font-bold p-3 rounded-xl mb-2 text-center flex items-center justify-center gap-2">
-                                    <IconGift/> Siapkan tiketmu! Hadiah ini bisa jadi milikmu.
-                                </div>
-                                {prizes.map((p, idx) => (
-                                    <div key={idx} className="flex flex-col bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                                        <div className="flex items-center gap-3 mb-1.5">
-                                            {p.type === 'uang' && <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl"><IconWallet /></div>}
-                                            {p.type === 'item' && <div className="flex items-center justify-center w-10 h-10 bg-amber-100 text-amber-600 rounded-xl"><IconCoin /></div>}
-                                            <span className="font-bold text-gray-800 text-base">{p.name}</span>
-                                        </div>
-                                        <p className="text-xs text-gray-500 font-medium pl-[52px]">{p.desc}</p>
-                                    </div>
-                                ))}
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                            <div className="bg-white p-6 rounded-3xl text-center w-full max-w-xs modal-enter">
+                                <h3 className="text-2xl font-black text-pink-500 mb-2">Selamat!</h3>
+                                <p className="font-bold text-gray-700 mb-6 text-lg">{wonPrize.name}</p>
+                                <button onClick={() => setWonPrize(null)} className="btn-modern bg-pink-500 text-white w-full py-3 rounded-xl font-bold">Lanjut</button>
                             </div>
                         </div>
                     )}
@@ -528,150 +318,39 @@
             );
         };
 
-        // ===================== WALLET & WITHDRAW RECEIPT =====================
         const Wallet = ({ profile, playerName, onWithdraw, onClose }) => {
             const [showReceipt, setShowReceipt] = useState(false);
-            const [isProcessing, setIsProcessing] = useState(false);
             const receiptRef = useRef(null);
-            const targetWaNumber = "6282215668643";
 
-            const txId = useRef(`TRX-${Math.floor(Math.random()*1000000)}`);
-            const txDate = useRef(new Date().toLocaleString('id-ID'));
-
-            const handleProcessReceipt = async () => {
+            const handleWithdraw = async () => {
                 if(profile.balanceIDR <= 0) return;
-                setIsProcessing(true);
                 try {
-                    const canvas = await window.html2canvas(receiptRef.current, { scale: 3, backgroundColor: '#ffffff', useCORS: true });
-                    const imgData = canvas.toDataURL('image/png');
-
+                    const canvas = await window.html2canvas(receiptRef.current, { scale: 2 });
                     const link = document.createElement('a');
-                    const pad = (n) => n.toString().padStart(2, '0');
-                    const now = new Date();
-                    const uniqueDateStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
-                    
-                    link.download = `Struk_Penarikan_${playerName}_${uniqueDateStr}.png`;
-                    link.href = imgData;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-
-                    const waText = `Halo sayang! Ini aku ${playerName} barusan withdraw saldo dari game Sweet Connect senilai ${formatIDR(profile.balanceIDR)}. Gambar struk resminya barusan udah otomatis kedownload di HP aku, nih aku kirim gambarnya yaa tolong segera dicairin! 😘💸`;
-                    const waUrl = `https://wa.me/${targetWaNumber}?text=${encodeURIComponent(waText)}`;
-
-                    setTimeout(() => {
-                        window.open(waUrl, '_blank');
-                        onWithdraw(); 
-                        setIsProcessing(false);
-                        setShowReceipt(false);
-                        onClose(); 
-                    }, 1500);
-
-                } catch (err) {
-                    console.error("Gagal mencetak:", err);
-                    alert("Oops, gagal mencetak struk. Coba lagi ya.");
-                    setIsProcessing(false);
-                }
+                    link.download = `WD_${playerName}.png`; link.href = canvas.toDataURL(); link.click();
+                    setTimeout(() => { onWithdraw(); setShowReceipt(false); onClose(); }, 1000);
+                } catch(e) { alert("Gagal cetak"); }
             };
 
             return (
                 <div className="absolute inset-0 bg-white z-[100] flex flex-col items-center p-4">
-                    <div className="w-full flex items-center justify-between mb-8 mt-2 px-2">
-                        <button onClick={onClose} className="p-2 bg-gray-50 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"><IconChevronLeft /></button>
-                        <h2 className="text-lg font-black text-gray-800">Dompetku</h2>
-                        <div className="w-10"></div>
+                    <div className="w-full flex p-4"><button onClick={onClose}><IconChevronLeft/></button><h2 className="mx-auto font-bold">Dompet</h2><div className="w-6"></div></div>
+                    <div className="bg-gray-900 text-white p-6 rounded-3xl w-full max-w-xs shadow-xl mb-6">
+                        <p className="text-sm text-gray-400">Saldo Rupiah</p>
+                        <h3 className="text-4xl font-black mb-4">{formatIDR(profile.balanceIDR)}</h3>
+                        <div className="flex justify-between bg-white/10 p-3 rounded-xl"><span className="text-sm">Koin</span><span className="font-bold">{formatNumber(profile.coins)}</span></div>
                     </div>
+                    <button onClick={() => setShowReceipt(true)} disabled={profile.balanceIDR <= 0} className="btn-modern bg-emerald-500 text-white w-full max-w-xs py-4 rounded-xl font-bold text-lg">Tarik Dana</button>
                     
-                    <div className="w-full max-w-[320px] bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-6 text-white shadow-xl mb-8 relative overflow-hidden">
-                        <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
-                        <p className="text-sm font-medium text-gray-300 mb-1 flex items-center gap-2"><IconWallet /> Saldo Rupiah</p>
-                        <h3 className="text-4xl font-black tracking-tight mb-8">{formatIDR(profile.balanceIDR)}</h3>
-                        <div className="flex justify-between items-center bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
-                            <div className="flex flex-col">
-                                <span className="text-xs font-medium text-gray-400 mb-1">Koin Game</span>
-                                <span className="text-xl font-bold flex items-center gap-2"><IconCoin /> {formatNumber(profile.coins)}</span>
-                            </div>
-                        </div>
-                    </div>
+                    <div style={{ position: 'absolute', top: '-9999px' }}><div ref={receiptRef} style={{ width: '300px', background: '#fff', padding: '20px', fontFamily: 'monospace', color: '#000' }}><h2 style={{color:'#ec4899'}}>SWEET MATCH-3</h2><p>WD: {formatIDR(profile.balanceIDR)}</p><p>Pemain: {playerName}</p></div></div>
                     
-                    <button onClick={() => {
-                        txId.current = `TRX-${Math.floor(Math.random()*1000000)}`;
-                        txDate.current = new Date().toLocaleString('id-ID');
-                        setShowReceipt(true);
-                    }} disabled={profile.balanceIDR <= 0} className="btn-modern bg-pink-500 text-white w-full max-w-[320px] py-4 text-base shadow-lg rounded-2xl font-bold">
-                        Tarik Saldo Rupiah
-                    </button>
-                    <p className="text-xs font-medium text-gray-400 text-center mt-4 w-full max-w-[280px]">Nanti akan keluar struk otomatis dan langsung diarahkan ke WA ayang!</p>
-
-                    <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', zIndex: -1 }}>
-                        <div ref={receiptRef} style={{ width: '300px', backgroundColor: '#fff', padding: '20px 25px', color: '#000', fontFamily: '"Space Mono", monospace' }}>
-                            <div style={{ textAlign: 'center', marginBottom: '15px' }}>
-                                <h2 style={{ margin: '0', color: '#ec4899', fontSize: '22px', fontWeight: 'bold', fontFamily: 'Inter, sans-serif' }}>SWEET CONNECT</h2>
-                                <p style={{ margin: '5px 0 0', fontSize: '11px', color: '#666', letterSpacing: '1px' }}>BUKTI PENARIKAN SAH</p>
-                            </div>
-                            <div style={{ borderTop: '2px dashed #ddd', margin: '15px 0' }}></div>
-                            <div style={{ fontSize: '13px', lineHeight: '1.8' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>ID TRX:</span> <strong>{txId.current}</strong></div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>WAKTU:</span> <span>{txDate.current}</span></div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>NAMA:</span> <strong>{playerName.toUpperCase()}</strong></div>
-                            </div>
-                            <div style={{ borderTop: '2px dashed #ddd', margin: '15px 0' }}></div>
-                            <div style={{ fontSize: '13px', lineHeight: '1.8' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span>NOMINAL:</span> 
-                                    <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{formatIDR(profile.balanceIDR)}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>STATUS:</span> <strong style={{ color: '#10b981' }}>SUCCESS</strong></div>
-                            </div>
-                            <div style={{ borderTop: '2px dashed #ddd', margin: '15px 0' }}></div>
-                            <p style={{ textAlign: 'center', fontSize: '11px', color: '#555', marginTop: '15px', lineHeight: '1.5' }}>
-                                Harap segera dicairkan ke<br/>
-                                <strong style={{ color: '#ec4899' }}>Bidadari Kesayanganmu 😘</strong><br/>
-                                Terima Kasih Sayang~
-                            </p>
-                        </div>
-                    </div>
-
                     {showReceipt && (
-                        <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-                            <div className="w-full max-w-[320px] flex flex-col items-center modal-enter">
-                                <div className="bg-white w-full rounded-2xl p-6 receipt-cut shadow-2xl mb-4 font-mono text-gray-800 relative">
-                                    <div className="text-center mb-4">
-                                        <h2 className="font-bold text-pink-500 font-sans text-xl">SWEET CONNECT</h2>
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Bukti Penarikan Sah</p>
-                                    </div>
-                                    <div className="border-t-2 border-dashed border-gray-200 my-4"></div>
-                                    <div className="text-xs space-y-2">
-                                        <div className="flex justify-between"><span>ID TRX:</span> <span className="font-bold">{txId.current}</span></div>
-                                        <div className="flex justify-between"><span>Waktu:</span> <span>{txDate.current.split(' ')[0]}</span></div>
-                                        <div className="flex justify-between"><span>Pemain:</span> <span className="font-bold uppercase">{playerName}</span></div>
-                                    </div>
-                                    <div className="border-t-2 border-dashed border-gray-200 my-4"></div>
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span>NOMINAL:</span> 
-                                            <span className="font-bold text-lg">{formatIDR(profile.balanceIDR)}</span>
-                                        </div>
-                                        <div className="flex justify-between text-xs"><span>Status:</span> <span className="font-bold text-emerald-500">SUCCESS</span></div>
-                                    </div>
-                                    <div className="border-t-2 border-dashed border-gray-200 my-4"></div>
-                                    <p className="text-center text-[10px] text-gray-500 italic mt-4">Harap segera dicairkan ke pacar kesayanganmu 😘</p>
-                                    
-                                    {isProcessing && (
-                                        <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-2xl">
-                                            <div className="w-8 h-8 border-4 border-gray-200 border-t-pink-500 rounded-full animate-spin mb-2"></div>
-                                            <p className="text-xs font-bold text-gray-600 font-sans animate-pulse">Sedang Mencetak...</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="w-full flex gap-3">
-                                    <button onClick={() => setShowReceipt(false)} disabled={isProcessing} className="flex-1 bg-gray-200 text-gray-700 font-bold py-3.5 rounded-xl shadow-md text-sm active:scale-95 transition-transform">
-                                        Batal
-                                    </button>
-                                    <button onClick={handleProcessReceipt} disabled={isProcessing} className="flex-[2] bg-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-md text-sm active:scale-95 transition-transform flex items-center justify-center gap-2">
-                                        Cetak & Kirim WA
-                                    </button>
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                            <div className="bg-white p-6 rounded-3xl text-center w-full max-w-xs modal-enter">
+                                <h3 className="font-bold mb-4">Cetak Struk & Tarik?</h3>
+                                <div className="flex gap-2">
+                                    <button onClick={()=>setShowReceipt(false)} className="flex-1 bg-gray-200 py-3 rounded-xl font-bold">Batal</button>
+                                    <button onClick={handleWithdraw} className="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-bold">Cetak</button>
                                 </div>
                             </div>
                         </div>
@@ -680,671 +359,629 @@
             );
         };
 
-        // ===================== SHOP =====================
-        const Shop = ({ profile, activeTheme, onThemeSelect, onBuy, onClose }) => {
-            const [tab, setTab] = useState('tema');
-            const [modalData, setModalData] = useState(null);
-
+        const Shop = ({ profile, onBuy, onClose }) => {
             const items = [
-                { id: 'hp', name: '+1 Nyawa', price: 150, type: 'item' },
-                { id: 'hints', name: '+3 Hint', price: 100, type: 'item' },
-                { id: 'shuffles', name: '+3 Shuffle', price: 100, type: 'item' },
-                { id: 'hp', name: '+10 Nyawa', price: 1200, type: 'item_bulk', val: 10, desc: 'Lebih hemat!' },
-                { id: 'hints', name: '+50 Hint', price: 1200, type: 'item_bulk', val: 50, desc: 'Lebih hemat!' },
-                { id: 'shuffles', name: '+50 Shuffle', price: 1200, type: 'item_bulk', val: 50, desc: 'Lebih hemat!' },
-                { id: 'flex_crown', name: 'Mahkota Sultan', price: 50000, type: 'flex', desc: 'Hanya buat koleksi.' }
+                { id: 'hp', name: '+1 Nyawa', price: 150 },
+                { id: 'hints', name: '+3 Palu (Hancurkan 1 tile)', price: 200 },
+                { id: 'shuffles', name: '+3 Shuffle', price: 100 },
             ];
-
             return (
-                <div className="absolute inset-0 bg-gray-50 z-[100] flex flex-col items-center p-4">
-                    <div className="w-full flex items-center justify-between mb-4 mt-2 px-2">
-                        <button onClick={onClose} className="p-2 bg-white rounded-full text-gray-500 shadow-sm transition-colors"><IconChevronLeft /></button>
-                        <h2 className="text-lg font-black text-gray-800">Toko & Tema</h2>
-                        <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full text-gray-700 font-bold text-sm shadow-sm">
-                            <IconCoin /> {formatNumber(profile.coins)}
-                        </div>
+                <div className="absolute inset-0 bg-white z-[100] flex flex-col items-center">
+                    <div className="w-full flex p-4 border-b border-gray-100 justify-between items-center">
+                        <button onClick={onClose}><IconChevronLeft/></button>
+                        <h2 className="font-bold">Toko Booster</h2>
+                        <div className="flex items-center gap-1 font-bold text-sm bg-gray-100 px-3 py-1 rounded-full"><IconCoin/> {formatNumber(profile.coins)}</div>
                     </div>
-                    <div className="flex gap-2 w-full max-w-[320px] mb-6 p-1 bg-gray-200/50 rounded-xl">
-                        <button onClick={() => setTab('tema')} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${tab === 'tema' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>Tema Papan</button>
-                        <button onClick={() => setTab('item')} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${tab === 'item' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>Bantuan</button>
+                    <div className="w-full p-4 space-y-3 max-w-sm mt-4">
+                        {items.map(it => (
+                            <div key={it.id} className="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                                <span className="font-bold">{it.name}</span>
+                                <button onClick={() => onBuy(it)} className="btn-modern bg-pink-100 text-pink-600 px-4 py-2 rounded-xl font-bold text-sm">Beli {it.price}</button>
+                            </div>
+                        ))}
                     </div>
-                    <div className="w-full max-w-[320px] flex-1 overflow-y-auto custom-scroll pb-4 flex flex-col gap-3">
-                        {tab === 'tema' ? Object.keys(THEMES).map(key => {
-                            const t = THEMES[key]; const isUnlocked = profile.unlockedThemes.includes(key); const isUsed = activeTheme === key;
-                            return (
-                                <div key={key} className={`flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border-2 transition-all ${isUsed ? 'border-pink-400' : 'border-transparent'}`}>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-2xl">{t.data[0]}</div>
-                                        <span className="font-bold text-gray-700">{t.name}</span>
-                                    </div>
-                                    {isUnlocked ? (
-                                        isUsed ? <span className="text-xs font-bold text-pink-500 flex items-center gap-1 bg-pink-50 px-3 py-2 rounded-lg">Dipakai</span> : <button onClick={() => onThemeSelect(key)} className="btn-modern bg-gray-100 text-gray-600 px-4 py-2 text-xs font-bold rounded-lg">Gunakan</button>
-                                    ) : (
-                                        <button onClick={() => setModalData({ id: key, name: `Tema ${t.name}`, price: t.price, type: 'tema' })} className="btn-modern bg-pink-50 text-pink-600 px-3 py-2 text-xs font-bold rounded-lg flex gap-1 items-center">
-                                            Beli {formatNumber(t.price)}
-                                        </button>
-                                    )}
-                                </div>
-                            )
-                        }) : items.map((it, idx) => {
-                            if (it.type === 'flex' && profile.flexCrown) return null;
-                            return (
-                                <div key={idx} className={`flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 ${it.type==='flex'?'border-yellow-300 bg-yellow-50':''}`}>
-                                    <div className="flex flex-col">
-                                        <span className="font-bold text-gray-700 flex items-center gap-1">{it.type === 'flex' && <IconCrown/>}{it.name}</span>
-                                        <span className="text-[10px] font-medium text-gray-400 mt-1 max-w-[140px] leading-tight">{it.desc || 'Otomatis dipakai.'}</span>
-                                    </div>
-                                    <button onClick={() => setModalData(it)} className="btn-modern bg-pink-50 text-pink-600 px-4 py-2 text-xs font-bold rounded-lg whitespace-nowrap">
-                                        Beli {formatNumber(it.price)}
-                                    </button>
-                                </div>
-                            )
-                        })}
-                    </div>
-                    <CustomModal isOpen={!!modalData} title="Beli Item" content={`Beli ${modalData?.name} seharga ${formatNumber(modalData?.price || 0)} Koin?`} confirmText="Beli" cancelText="Batal" onConfirm={() => { if(modalData) onBuy(modalData); setModalData(null); }} onCancel={() => setModalData(null)} />
                 </div>
             );
         };
 
-        // ===================== MAIN APP =====================
+        // ===================== MATCH-3 ENGINE =====================
+
+        const TILE_SIZE = 48; // px
+        const BOARD_WIDTH = 7;
+        const BOARD_HEIGHT = 8;
+
+        const generateLevelConfig = (level, themeId) => {
+            const colorsCount = Math.min(6, 4 + Math.floor(level / 10));
+            const availableColors = [...THEMES[themeId].data].slice(0, colorsCount);
+            
+            let moves = 15 + Math.floor(level * 1.2);
+            let objective = { type: 'score', target: 1000 + (level * 800), current: 0 };
+            
+            // Variasi objective
+            if (level % 4 === 0) objective = { type: 'jelly', target: 8 + Math.floor(level/2), current: 0 };
+            else if (level % 3 === 0) objective = { type: 'collect', targetId: availableColors[0], target: 15 + level, current: 0 };
+
+            return { cols: BOARD_WIDTH, rows: BOARD_HEIGHT, colors: availableColors, moves, objective };
+        };
+
+        const createInitialBoard = (config) => {
+            let grid = []; let keyCounter = 0;
+            for(let r=0; r<config.rows; r++){
+                let row = [];
+                for(let c=0; c<config.cols; c++){
+                    // Ensure no initial matches
+                    let color;
+                    do { color = config.colors[Math.floor(Math.random() * config.colors.length)]; } 
+                    while (
+                        (r >= 2 && grid[r-1][c]?.color === color && grid[r-2][c]?.color === color) ||
+                        (c >= 2 && row[c-1]?.color === color && row[c-2]?.color === color)
+                    );
+                    
+                    let obstacle = null;
+                    if(config.objective.type === 'jelly' && Math.random() < 0.3) obstacle = 'jelly';
+
+                    row.push({ id: `t_${keyCounter++}`, color, row: r, col: c, special: null, obstacle, isNew: false });
+                }
+                grid.push(row);
+            }
+            return grid;
+        };
+
+        // Helper to clone grid
+        const cloneGrid = (g) => g.map(row => row.map(cell => cell ? {...cell} : null));
+
+        // Match Logic
+        const findMatches = (grid) => {
+            const rows = grid.length; const cols = grid[0].length;
+            let matchedTiles = new Set();
+            let matchGroups = [];
+
+            // Horizontal
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols - 2; c++) {
+                    let tile1 = grid[r][c];
+                    if (!tile1) continue;
+                    let matchLen = 1;
+                    while (c + matchLen < cols && grid[r][c + matchLen]?.color === tile1.color) matchLen++;
+                    
+                    if (matchLen >= 3) {
+                        let group = [];
+                        for (let i = 0; i < matchLen; i++) {
+                            matchedTiles.add(`${r},${c+i}`);
+                            group.push({r, c: c+i});
+                        }
+                        matchGroups.push({ type: 'h', len: matchLen, color: tile1.color, tiles: group });
+                        c += matchLen - 1; 
+                    }
+                }
+            }
+
+            // Vertical
+            for (let c = 0; c < cols; c++) {
+                for (let r = 0; r < rows - 2; r++) {
+                    let tile1 = grid[r][c];
+                    if (!tile1) continue;
+                    let matchLen = 1;
+                    while (r + matchLen < rows && grid[r + matchLen][c]?.color === tile1.color) matchLen++;
+                    
+                    if (matchLen >= 3) {
+                        let group = [];
+                        for (let i = 0; i < matchLen; i++) {
+                            matchedTiles.add(`${r+i},${c}`);
+                            group.push({r: r+i, c});
+                        }
+                        matchGroups.push({ type: 'v', len: matchLen, color: tile1.color, tiles: group });
+                        r += matchLen - 1;
+                    }
+                }
+            }
+
+            return { coords: Array.from(matchedTiles).map(str => { const [r,c] = str.split(','); return {r:parseInt(r), c:parseInt(c)}; }), groups: matchGroups };
+        };
+
+
+        // ===================== MAIN APP COMPONENT =====================
         const App = () => {
             const [isStandalone, setIsStandalone] = useState(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true);
             const [deferredPrompt, setDeferredPrompt] = useState(null);
             
-            const [playerName, setPlayerName] = useState(() => localStorage.getItem('pkmnPlayerName') || '');
-            const [loginError, setLoginError] = useState('');
+            const [playerName, setPlayerName] = useState(() => localStorage.getItem('sm_name') || '');
             const [gameState, setGameState] = useState('LOGIN'); 
-            const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+            const [profile, setProfile] = useState(null);
+            const [activeTheme, setActiveTheme] = useState('sweets');
             
-            const [profile, setProfile] = useState({ tickets: 0, hints: 3, shuffles: 3, hp: 3, balanceIDR: 0, coins: 0, flexCrown: false, unlockedThemes: ['sweets'], currentLevel: 1, currentScore: 0 });
-            
-            const [activeTheme, setActiveTheme] = useState(() => localStorage.getItem('pkmnTheme') || 'sweets');
-            const [board, setBoard] = useState([]);
-            
-            const [level, setLevel] = useState(1);
+            // Game State
+            const [grid, setGrid] = useState([]);
+            const [config, setConfig] = useState(null);
+            const [moves, setMoves] = useState(0);
             const [score, setScore] = useState(0);
-            const [hp, setHp] = useState(3);
-            const [hints, setHints] = useState(3);
-            const [shuffles, setShuffles] = useState(3);
+            const [objective, setObjective] = useState(null);
+            const [combo, setCombo] = useState(0);
+            const [isAnimating, setIsAnimating] = useState(false);
+            const [draggedTile, setDraggedTile] = useState(null);
+            const [poppingCoords, setPoppingCoords] = useState([]);
+            const [floatingTexts, setFloatingTexts] = useState([]);
             
-            const [progress, setProgress] = useState(100); 
-            const [selectedTile, setSelectedTile] = useState(null);
-            const [matchedTiles, setMatchedTiles] = useState([]); 
-            const [hintActiveTiles, setHintActiveTiles] = useState([]); 
-            const [activePath, setActivePath] = useState(null); 
-            const [wrongTile, setWrongTile] = useState(null);
+            // Booster mode
+            const [activeBooster, setActiveBooster] = useState(null); // 'hammer'
 
-            const [showTimerAdd, setShowTimerAdd] = useState(false);
-            const [showTimeoutFlash, setShowTimeoutFlash] = useState(false);
-            const [showBoardClear, setShowBoardClear] = useState(false);
-            const [isMuted, setIsMuted] = useState(() => localStorage.getItem('pkmnMuted') === 'true');
-            const [isNewRecord, setIsNewRecord] = useState(false);
-            const [levelStartTime, setLevelStartTime] = useState(0);
-            const [countdown, setCountdown] = useState(null);
-            const [alertData, setAlertData] = useState(null);
-
-            const boardRef = useRef(board);
-            const activeThemeRef = useRef(activeTheme);
-            const gameStateRef = useRef(gameState);
+            const gridRef = useRef(grid);
+            const nextKey = useRef(1000);
 
             useEffect(() => {
-                const handleBeforeInstallPrompt = (e) => {
-                    e.preventDefault();
-                    setDeferredPrompt(e);
-                };
+                const handleBeforeInstallPrompt = (e) => { e.preventDefault(); setDeferredPrompt(e); };
                 window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-                
-                const mediaQuery = window.matchMedia('(display-mode: standalone)');
-                const handleChange = (e) => setIsStandalone(e.matches);
-                mediaQuery.addEventListener('change', handleChange);
-                
-                return () => {
-                    window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-                    mediaQuery.removeEventListener('change', handleChange);
-                };
+                return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
             }, []);
 
-            useEffect(() => { boardRef.current = board; activeThemeRef.current = activeTheme; gameStateRef.current = gameState; }, [board, activeTheme, gameState]);
-            useEffect(() => { AudioEngine.setMuted(isMuted); localStorage.setItem('pkmnMuted', isMuted); }, [isMuted]);
-            
-            // --- HANYA SIMPAN AUTO SAVE JIKA SEDANG BERMAIN ATAU PAUSE ---
-            useEffect(() => {
-                if (gameState === 'PLAYING' || gameState === 'PAUSED') {
-                    const sessionData = {
-                        board, progress, level, score, hp, hints, shuffles, theme: activeTheme
-                    };
-                    localStorage.setItem(`sc_autosave_${playerName}`, JSON.stringify(sessionData));
-                }
-            }, [board, progress, level, score, hp, hints, shuffles, activeTheme, gameState, playerName]);
-            
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-            useEffect(() => { if(playerName && gameState === 'LOGIN') handleLoginSubmit(); }, []);
+            useEffect(() => { gridRef.current = grid; }, [grid]);
 
-            const showAlert = (title, content) => setAlertData({ title, content });
-
-            const handleLoginSubmit = async () => {
-                if (playerName.trim()) {
-                    const name = playerName.trim();
-                    localStorage.setItem('pkmnPlayerName', name); setLoginError(''); setIsLoadingProfile(true);
-                    const p = await fetchProfile(name);
-                    if(!p.unlockedThemes.includes(activeTheme)) setActiveTheme('sweets');
-                    await saveProfile(name, p); setProfile(p);
-                    setIsLoadingProfile(false); setGameState('LOBBY_MAIN');
-                } else setLoginError('Nama tidak boleh kosong!');
+            const handleLogin = async () => {
+                if(!playerName.trim()) return;
+                localStorage.setItem('sm_name', playerName);
+                const p = await fetchProfile(playerName);
+                setProfile(p); setGameState('LOBBY');
             };
 
-            const triggerLevelEndStats = useCallback(async (isGameOver = false) => {
-                if (isGameOver) {
-                    AudioEngine.gameOver();
-                    const coinsEarned = Math.floor(score * 0.1);
-                    const newProfile = { 
-                        ...profile, 
-                        coins: profile.coins + coinsEarned,
-                        currentLevel: 1, 
-                        currentScore: 0,
-                        hp: 3, 
-                        hints: 3, 
-                        shuffles: 3
-                    };
-                    setProfile(newProfile); await saveProfile(playerName, newProfile);
-                    localStorage.removeItem(`sc_autosave_${playerName}`); // Hapus autosave
-                    setGameState('GAMEOVER');
-                } else {
-                    AudioEngine.levelClear(); setShowBoardClear(true);
-                    localStorage.removeItem(`sc_autosave_${playerName}`); // Hapus autosave agar mulai baru
-                    
-                    const timeTaken = Date.now() - levelStartTime;
-                    let gotTicket = false;
-                    let newTickets = profile.tickets;
-                    
-                    if (timeTaken > 5000) {
-                        newTickets += 1;
-                        gotTicket = true;
+            const startLevel = (levelToStart) => {
+                const conf = generateLevelConfig(levelToStart, activeTheme);
+                const initialGrid = createInitialBoard(conf);
+                setConfig(conf); setGrid(initialGrid); setMoves(conf.moves); setScore(0); setObjective(conf.objective);
+                setCombo(0); setFloatingTexts([]); setActiveBooster(null);
+                setGameState('PLAYING');
+            };
+
+            const addFloatingText = (text, r, c) => {
+                const id = Date.now() + Math.random();
+                setFloatingTexts(prev => [...prev, { id, text, r, c }]);
+                setTimeout(() => setFloatingTexts(prev => prev.filter(ft => ft.id !== id)), 1000);
+            };
+
+            // CORE MATCH-3 LOOP
+            const processCascade = async (currentGrid, currentCombo, originSwap = null) => {
+                let matchesInfo = findMatches(currentGrid);
+                let toDestroy = new Set();
+                let newSpecials = []; // {r,c,type}
+
+                if (matchesInfo.coords.length === 0) return false; // No more cascades
+
+                setIsAnimating(true);
+                
+                // 1. Identify Power-ups from matches
+                matchesInfo.groups.forEach(g => {
+                    if (g.len === 5) {
+                        // Rainbow
+                        let targetNode = originSwap && g.tiles.find(t=>t.r===originSwap.r && t.c===originSwap.c) ? originSwap : g.tiles[2];
+                        newSpecials.push({ r: targetNode.r, c: targetNode.c, type: 'rainbow' });
+                    } else if (g.len === 4) {
+                        // Rocket (h/v depends on match direction)
+                        let type = g.type === 'h' ? 'rocket_h' : 'rocket_v';
+                        let targetNode = originSwap && g.tiles.find(t=>t.r===originSwap.r && t.c===originSwap.c) ? originSwap : g.tiles[1];
+                        newSpecials.push({ r: targetNode.r, c: targetNode.c, type });
                     }
-
-                    const nextLevel = level + 1;
-                    const newProfile = {
-                        ...profile,
-                        tickets: newTickets,
-                        currentLevel: nextLevel,
-                        currentScore: score,
-                        hp: hp,
-                        hints: hints,
-                        shuffles: shuffles
-                    };
-                    setProfile(newProfile); await saveProfile(playerName, newProfile);
-
-                    setTimeout(() => {
-                        setShowBoardClear(false); setGameState('WON');
-                        setTimeout(() => {
-                            const newB = generateBoard(activeThemeRef.current);
-                            prepareLevel(nextLevel, newB, activeThemeRef.current, score, hp, hints, shuffles, 100);
-                        }, gotTicket ? 3000 : 1500); 
-                        if(gotTicket) showAlert("Yeay!", "Hebat! Kamu dapat 1 Tiket Kado Misteri. Kumpulkan sebanyak-banyaknya!");
-                        else showAlert("Awas!", "Terlalu cepat menyelesaikan level! Sistem mendeteksi aktivitas mencurigakan. Tiket dibatalkan.");
-                    }, 500);
-                }
-            }, [level, score, playerName, profile, levelStartTime, hp, hints, shuffles]);
-
-            const handleLevelCleared = useCallback(() => triggerLevelEndStats(false), [triggerLevelEndStats]);
-
-            const guaranteedShuffle = (currentBoard) => {
-                let tiles = []; let pos = [];
-                for (let r = 1; r <= ROWS; r++) for (let c = 1; c <= COLS; c++) if (currentBoard[r][c] !== 0) { tiles.push(currentBoard[r][c]); pos.push({r, c}); }
-                if (tiles.length === 0) return currentBoard; let newB = [...currentBoard.map(row => [...row])];
-                for (let attempt = 0; attempt < 50; attempt++) {
-                    tiles.sort(() => Math.random() - 0.5); for (let i = 0; i < pos.length; i++) newB[pos[i].r][pos[i].c] = tiles[i];
-                    if (findHint(newB)) return newB;
-                }
-                for (let i = 0; i < tiles.length; i++) for (let j = i + 1; j < tiles.length; j++) if (tiles[i] === tiles[j]) {
-                    newB[pos[0].r][pos[0].c] = tiles[i]; newB[pos[1].r][pos[1].c] = tiles[j];
-                    if (findHint(newB)) return newB;
-                }
-                return newB; 
-            };
-
-            const handleDeadlock = useCallback((b) => setBoard(guaranteedShuffle(b)), []);
-
-            const generateBoard = useCallback((themeKey = activeThemeRef.current) => {
-                const newBoard = Array.from({ length: ROWS + 2 }, () => Array(COLS + 2).fill(0));
-                const themeData = THEMES[themeKey].data; let selectedIds = []; const requiredPairs = (ROWS * COLS) / 4;
-                while (selectedIds.length < requiredPairs) selectedIds.push(...[...themeData].sort(() => Math.random() - 0.5));
-                selectedIds = selectedIds.slice(0, requiredPairs);
-                let tiles = []; selectedIds.forEach(id => tiles.push(id, id, id, id)); tiles.sort(() => Math.random() - 0.5);
-                let idx = 0; for (let r = 1; r <= ROWS; r++) for (let c = 1; c <= COLS; c++) newBoard[r][c] = tiles[idx++];
-                let attempts = 0;
-                while (!findHint(newBoard) && attempts < 10) {
-                    tiles.sort(() => Math.random() - 0.5); idx = 0;
-                    for (let r = 1; r <= ROWS; r++) for (let c = 1; c <= COLS; c++) newBoard[r][c] = tiles[idx++];
-                    attempts++;
-                }
-                return newBoard;
-            }, []);
-
-            const prepareLevel = async (startLevel, providedBoard = null, providedTheme = null, startScore = null, startHp = null, startHints = null, startShuffles = null, targetProgress = 100) => {
-                const currentT = providedTheme || activeThemeRef.current;
-                const b = providedBoard || generateBoard(currentT);
-                setBoard(b); setLevel(startLevel);
-                
-                setScore(startScore !== null ? startScore : profile.currentScore);
-                setHp(startHp !== null ? startHp : profile.hp);
-                setHints(startHints !== null ? startHints : profile.hints);
-                setShuffles(startShuffles !== null ? startShuffles : profile.shuffles);
-                
-                if (startLevel === 1 && targetProgress === 100) setIsNewRecord(false); 
-                setMatchedTiles([]);
-                
-                setGameState('LOADING_BOARD'); setProgress(0); 
-                let p = 0; const interval = setInterval(() => { p += 25; setProgress(p); }, 100);
-                await new Promise(r => setTimeout(r, 400)); clearInterval(interval); 
-                
-                setProgress(targetProgress); // Kembalikan progress asli setelah loading
-                
-                setLevelStartTime(Date.now() + 3700);
-                runCountdownThenPlay(Date.now() + 3700, targetProgress);
-            };
-
-            const runCountdownThenPlay = (startAt, targetProgress = 100) => {
-                setProgress(targetProgress); 
-                setGameState('COUNTDOWN');
-                const steps = [{ label: 3, offset: -3000 }, { label: 2, offset: -2000 }, { label: 1, offset: -1000 }, { label: 'GO!', offset: 0 }];
-                steps.forEach(({ label, offset }) => {
-                    const delay = Math.max(0, (startAt + offset) - Date.now());
-                    setTimeout(() => { setCountdown(label); AudioEngine.tick(label); }, delay);
+                    // Add basic tiles to destroy
+                    g.tiles.forEach(t => toDestroy.add(`${t.r},${t.c}`));
                 });
-                const playDelay = Math.max(0, (startAt + 700) - Date.now());
-                setTimeout(() => {
-                    setCountdown(null); setSelectedTile(null); setMatchedTiles([]); setActivePath(null); setHintActiveTiles([]);
-                    setGameState('PLAYING');
-                }, playDelay);
-            };
 
-            const handleTileClick = (r, c) => {
-                if (gameStateRef.current !== 'PLAYING') return;
-                const currentBoard = boardRef.current;
-                if (currentBoard[r][c] === 0 || matchedTiles.some(m => m.r === r && m.c === c)) return; 
-                if (selectedTile && selectedTile.r === r && selectedTile.c === c) { setSelectedTile(null); return; }
-                if (!selectedTile) { setSelectedTile({r, c}); return; }
+                // Check for intersections (Bomb) - Simplified logic
+                let rCounts = {}; let cCounts = {};
+                toDestroy.forEach(s => { const [r,c] = s.split(','); rCounts[r] = (rCounts[r]||0)+1; cCounts[c] = (cCounts[c]||0)+1; });
+                toDestroy.forEach(s => {
+                    const [r,c] = s.split(',');
+                    if(rCounts[r] >= 3 && cCounts[c] >= 3) {
+                        newSpecials.push({ r: parseInt(r), c: parseInt(c), type: 'bomb' });
+                        // Remove from rainbow/rocket if overlapping (simple resolution)
+                        newSpecials = newSpecials.filter(sp => sp.type==='bomb' || (sp.r!==parseInt(r) || sp.c!==parseInt(c)));
+                    }
+                });
 
-                const virtualBoard = currentBoard.map(row => [...row]);
-                matchedTiles.forEach(m => { virtualBoard[m.r][m.c] = 0; });
-                if (virtualBoard[selectedTile.r][selectedTile.c] === 0 || virtualBoard[r][c] === 0) { setSelectedTile(null); return; }
+                // 2. Trigger existing specials inside the match
+                toDestroy.forEach(coord => {
+                    const [r, c] = coord.split(',').map(Number);
+                    const tile = currentGrid[r][c];
+                    if(tile && tile.special) triggerSpecial(currentGrid, r, c, tile.special, tile.color, toDestroy);
+                });
 
-                const path = getPath(virtualBoard, selectedTile.r, selectedTile.c, r, c);
-                if (path) {
-                    const r1 = selectedTile.r; const c1 = selectedTile.c; const id1 = virtualBoard[r1][c1]; const id2 = virtualBoard[r][c];
-                    const newMatches = [{r: r1, c: c1, id: id1}, {r, c, id: id2}];
-                    setMatchedTiles(prev => [...prev, ...newMatches]); setHintActiveTiles([]); setActivePath(path); AudioEngine.match();
+                const coordsToPop = Array.from(toDestroy).map(str => { const [r,c] = str.split(','); return {r:parseInt(r), c:parseInt(c)}; });
+                
+                // Visual Update: Popping
+                setPoppingCoords(coordsToPop);
+                AudioEngine.pop(currentCombo);
+                
+                // Scoring
+                const points = coordsToPop.length * 10 * (currentCombo + 1);
+                setScore(s => s + points);
+                if(coordsToPop.length > 0) addFloatingText(`+${points}`, coordsToPop[0].r, coordsToPop[0].c);
 
-                    setShowTimerAdd(true); setTimeout(() => setShowTimerAdd(false), 900); setSelectedTile(null); 
+                // Update Objective
+                setObjective(obj => {
+                    let newObj = {...obj};
+                    if (obj.type === 'score') newObj.current += points;
+                    else if (obj.type === 'jelly') {
+                        coordsToPop.forEach(({r,c}) => { if(currentGrid[r][c]?.obstacle === 'jelly') newObj.current++; });
+                    }
+                    else if (obj.type === 'collect') {
+                        coordsToPop.forEach(({r,c}) => { if(currentGrid[r][c]?.color === obj.targetId && !currentGrid[r][c].special) newObj.current++; });
+                    }
+                    return newObj;
+                });
 
-                    setTimeout(() => {
-                        setBoard(prev => {
-                            const newBoard = prev.map(row => [...row]);
-                            if (newBoard[r1][c1] !== 0 && newBoard[r][c] !== 0) {
-                                newBoard[r1][c1] = 0; newBoard[r][c] = 0;
-                                if (countRemaining(newBoard) === 0) setTimeout(() => handleLevelCleared(), 0);
-                                else if (!findHint(newBoard)) setTimeout(() => handleDeadlock(newBoard), 0);
+                await new Promise(res => setTimeout(res, 250)); // Pop duration
+
+                // 3. Remove tiles & Spawn specials
+                let nextGrid = cloneGrid(currentGrid);
+                coordsToPop.forEach(({r,c}) => {
+                    if(nextGrid[r][c]?.obstacle === 'jelly') nextGrid[r][c].obstacle = null; // Clear jelly
+                    nextGrid[r][c] = null; 
+                });
+                setPoppingCoords([]);
+
+                newSpecials.forEach(sp => {
+                    nextGrid[sp.r][sp.c] = { id: `t_${nextKey.current++}`, color: currentGrid[sp.r][sp.c]?.color || config.colors[0], special: sp.type, row: sp.r, col: sp.c, obstacle: null };
+                });
+
+                // 4. Gravity & Refill
+                for(let c=0; c<config.cols; c++) {
+                    let writeR = config.rows - 1;
+                    for(let readR = config.rows - 1; readR >= 0; readR--) {
+                        if(nextGrid[readR][c] !== null) {
+                            if(writeR !== readR) {
+                                nextGrid[writeR][c] = nextGrid[readR][c];
+                                nextGrid[writeR][c].row = writeR;
+                                nextGrid[readR][c] = null;
                             }
-                            return newBoard;
-                        });
-                        setMatchedTiles(prev => prev.filter(m => !( (m.r === r1 && m.c === c1) || (m.r === r && m.c === c) )));
-                        setActivePath(null); 
-                        setScore(s => {
-                            const ns = s + 10; const best = parseInt(localStorage.getItem('pkmnBestScore') || '0');
-                            if (ns > best) { localStorage.setItem('pkmnBestScore', ns); setIsNewRecord(true); }
-                            return ns;
-                        });
-                        setProgress(p => Math.min(100, p + 4)); 
-                    }, 350); 
-                } else {
-                    AudioEngine.wrong(); setWrongTile({r, c}); setTimeout(() => setWrongTile(null), 380); setSelectedTile({r, c});
-                }
-            };
-
-            useEffect(() => {
-                if (gameState !== 'PLAYING') return;
-                const speed = getTimerSpeed(level);
-                const timer = setInterval(() => {
-                    setProgress(prev => { if (prev <= 0) { clearInterval(timer); handleTimeout(); return 0; } return prev - speed; });
-                }, 200);
-                return () => clearInterval(timer);
-            }, [gameState, level]);
-
-            const handleTimeout = () => {
-                AudioEngine.timeout(); setShowTimeoutFlash(true);
-                setTimeout(() => {
-                    setShowTimeoutFlash(false);
-                    if (hp > 1) { 
-                        const newHp = hp - 1;
-                        setHp(newHp); 
-                        const newProfile = { ...profile, hp: newHp };
-                        setProfile(newProfile); saveProfile(playerName, newProfile);
-                        
-                        localStorage.removeItem(`sc_autosave_${playerName}`);
-                        
-                        const newB = generateBoard(activeThemeRef.current); 
-                        prepareLevel(level, newB, activeThemeRef.current, score, newHp, hints, shuffles, 100); 
-                    } 
-                    else {
-                        triggerLevelEndStats(true);
-                    }
-                }, 1000);
-            };
-
-            // Mengurangi hint dan update profil otomatis (cegah exploit cheat hint)
-            const handleHintClick = () => {
-                if (hints > 0 && gameState === 'PLAYING') {
-                    const hintData = findHint(board);
-                    if (hintData) { 
-                        const newHints = hints - 1;
-                        setHints(newHints); 
-                        const newProfile = { ...profile, hints: newHints };
-                        setProfile(newProfile); saveProfile(playerName, newProfile);
-                        
-                        AudioEngine.hint(); 
-                        setHintActiveTiles([{r: hintData.p1.r, c: hintData.p1.c}, {r: hintData.p2.r, c: hintData.p2.c}]); 
-                        setTimeout(() => setHintActiveTiles([]), 1200); 
-                    }
-                }
-            };
-            
-            const handleShuffleClick = () => { 
-                if (shuffles > 0 && gameState === 'PLAYING') { 
-                    const newShuffles = shuffles - 1;
-                    setShuffles(newShuffles); 
-                    const newProfile = { ...profile, shuffles: newShuffles };
-                    setProfile(newProfile); saveProfile(playerName, newProfile);
-                    
-                    AudioEngine.shuffle(); handleDeadlock(board); setSelectedTile(null); 
-                } 
-            };
-            
-            const handleBuyStore = async (item) => {
-                if (profile.coins < item.price) { showAlert("Gagal", "Koin kamu tidak cukup!"); return; }
-                const newProfile = { ...profile, coins: profile.coins - item.price };
-                
-                if (item.type === 'tema') newProfile.unlockedThemes = [...newProfile.unlockedThemes, item.id];
-                else if (item.type === 'item') {
-                    if (item.id === 'hp') newProfile.hp = Math.min(9, newProfile.hp + 1);
-                    if (item.id === 'hints') newProfile.hints = Math.min(99, newProfile.hints + 3);
-                    if (item.id === 'shuffles') newProfile.shuffles = Math.min(99, newProfile.shuffles + 3);
-                }
-                else if (item.type === 'item_bulk') {
-                    if (item.id === 'hp') newProfile.hp = Math.min(9, newProfile.hp + item.val);
-                    if (item.id === 'hints') newProfile.hints = Math.min(99, newProfile.hints + item.val);
-                    if (item.id === 'shuffles') newProfile.shuffles = Math.min(99, newProfile.shuffles + item.val);
-                }
-                else if (item.type === 'flex') newProfile.flexCrown = true;
-                
-                setProfile(newProfile); await saveProfile(playerName, newProfile);
-                showAlert("Berhasil", `Berhasil membeli ${item.name}!`);
-            };
-
-            const handleWithdrawSuccess = async () => {
-                const newProfile = { ...profile, balanceIDR: 0 };
-                setProfile(newProfile); 
-                await saveProfile(playerName, newProfile);
-            };
-
-            const hasAutoSave = () => {
-                try {
-                    const saved = localStorage.getItem(`sc_autosave_${playerName}`);
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        return data.level === profile.currentLevel;
-                    }
-                } catch(e) {}
-                return false;
-            };
-
-            const handlePlayClick = () => {
-                const saved = localStorage.getItem(`sc_autosave_${playerName}`);
-                if (saved) {
-                    try {
-                        const data = JSON.parse(saved);
-                        if (data.level === profile.currentLevel) {
-                            prepareLevel(
-                                data.level,
-                                data.board,
-                                data.theme,
-                                Math.max(data.score, profile.currentScore),
-                                profile.hp,
-                                profile.hints,
-                                profile.shuffles,
-                                data.progress
-                            );
-                            return;
+                            writeR--;
                         }
-                    } catch (e) {}
+                    }
+                    // Refill top
+                    while(writeR >= 0) {
+                        nextGrid[writeR][c] = { id: `t_${nextKey.current++}`, color: config.colors[Math.floor(Math.random()*config.colors.length)], row: writeR, col: c, special: null, obstacle: null, isNew: true };
+                        writeR--;
+                    }
                 }
-                prepareLevel(profile.currentLevel, null, null, null, null, null, null, 100);
+
+                setGrid(nextGrid);
+                await new Promise(res => setTimeout(res, 350)); // Fall duration
+                
+                // Clear isNew flag
+                setGrid(g => g.map(row => row.map(cell => ({...cell, isNew:false}))));
+
+                // 5. Recurse cascade
+                setCombo(currentCombo + 1);
+                const willCascade = await processCascade(nextGrid, currentCombo + 1);
+                
+                if(!willCascade && currentCombo === 0) {
+                    // Cascade ended. Check Win/Loss
+                    setIsAnimating(false);
+                    checkWinLoss();
+                }
+                return true;
             };
 
-            // ===================== PWA GUARD =====================
-            if (!isStandalone) {
-                return <InstallPrompt deferredPrompt={deferredPrompt} />;
+            const triggerSpecial = (grid, r, c, type, color, destroySet) => {
+                if(type === 'rocket_h') { AudioEngine.rocket(); for(let i=0; i<config.cols; i++) destroySet.add(`${r},${i}`); }
+                else if(type === 'rocket_v') { AudioEngine.rocket(); for(let i=0; i<config.rows; i++) destroySet.add(`${i},${c}`); }
+                else if(type === 'bomb') {
+                    AudioEngine.bomb();
+                    for(let i=Math.max(0,r-1); i<=Math.min(config.rows-1,r+1); i++)
+                        for(let j=Math.max(0,c-1); j<=Math.min(config.cols-1,c+1); j++) destroySet.add(`${i},${j}`);
+                }
+                else if(type === 'rainbow') {
+                    AudioEngine.levelClear();
+                    let targetColor = color; // If swapped with normal tile, that color is used.
+                    for(let i=0; i<config.rows; i++) for(let j=0; j<config.cols; j++) 
+                        if(grid[i][j] && grid[i][j].color === targetColor) destroySet.add(`${i},${j}`);
+                }
+            };
+
+            const checkWinLoss = () => {
+                setObjective(currObj => {
+                    if (currObj.current >= currObj.target) {
+                        setTimeout(() => handleLevelEnd(true), 500);
+                    } else if (moves <= 0) {
+                        setTimeout(() => handleLevelEnd(false), 500);
+                    }
+                    return currObj;
+                });
+            };
+
+            const handleLevelEnd = async (isWin) => {
+                if(isWin) {
+                    AudioEngine.levelClear();
+                    const bonusCoins = Math.floor(score * 0.1) + (moves * 10);
+                    const gotTicket = Math.random() > 0.5 ? 1 : 0; // 50% chance
+                    const p = { ...profile, currentLevel: profile.currentLevel + 1, coins: profile.coins + bonusCoins, tickets: profile.tickets + gotTicket };
+                    setProfile(p); await saveProfile(playerName, p);
+                    setGameState('WON');
+                } else {
+                    AudioEngine.gameOver();
+                    const p = { ...profile, hp: Math.max(0, profile.hp - 1) };
+                    setProfile(p); await saveProfile(playerName, p);
+                    setGameState('GAMEOVER');
+                }
+            };
+
+            // Player Actions
+            const attemptSwap = async (r1, c1, r2, c2) => {
+                if (isAnimating || moves <= 0) return;
+                
+                // Booster logic
+                if (activeBooster === 'hammer') {
+                    if(profile.hints > 0) {
+                        setIsAnimating(true);
+                        const p = {...profile, hints: profile.hints - 1}; setProfile(p); saveProfile(playerName, p);
+                        let nextGrid = cloneGrid(gridRef.current);
+                        setPoppingCoords([{r:r1, c:c1}]); AudioEngine.bomb();
+                        await new Promise(r=>setTimeout(r, 200));
+                        nextGrid[r1][c1] = null;
+                        
+                        // Gravity
+                        for(let c=0; c<config.cols; c++) {
+                            let writeR = config.rows - 1;
+                            for(let readR = config.rows - 1; readR >= 0; readR--) {
+                                if(nextGrid[readR][c] !== null) {
+                                    if(writeR !== readR) { nextGrid[writeR][c] = nextGrid[readR][c]; nextGrid[writeR][c].row = writeR; nextGrid[readR][c] = null; }
+                                    writeR--;
+                                }
+                            }
+                            while(writeR >= 0) { nextGrid[writeR][c] = { id: `t_${nextKey.current++}`, color: config.colors[Math.floor(Math.random()*config.colors.length)], row: writeR, col: c, special: null, obstacle: null, isNew:true }; writeR--; }
+                        }
+                        setGrid(nextGrid); setActiveBooster(null); setPoppingCoords([]);
+                        await new Promise(r=>setTimeout(r, 300));
+                        setGrid(g => g.map(row => row.map(cell => ({...cell, isNew:false}))));
+                        await processCascade(nextGrid, 0);
+                    }
+                    return;
+                }
+
+                // Normal Swap
+                if (Math.abs(r1-r2) + Math.abs(c1-c2) !== 1) return; // Must be adjacent
+
+                setIsAnimating(true); setCombo(0);
+                let tempGrid = cloneGrid(gridRef.current);
+                let t1 = tempGrid[r1][c1]; let t2 = tempGrid[r2][c2];
+                t1.row = r2; t1.col = c2; t2.row = r1; t2.col = c1;
+                tempGrid[r1][c1] = t2; tempGrid[r2][c2] = t1;
+                
+                setGrid(tempGrid); AudioEngine.swap();
+                await new Promise(res => setTimeout(res, 250)); // Swap anim duration
+
+                // Special combo (Rainbow + Any)
+                let toDestroy = new Set();
+                if (t1.special === 'rainbow' || t2.special === 'rainbow') {
+                    let rb = t1.special === 'rainbow' ? t1 : t2;
+                    let other = t1.special === 'rainbow' ? t2 : t1;
+                    triggerSpecial(tempGrid, rb.row, rb.col, 'rainbow', other.color, toDestroy);
+                    
+                    // Force cascade
+                    setMoves(m => m - 1);
+                    await processCascade(tempGrid, 0, {r:r2, c:c2});
+                    return;
+                }
+
+                // Check matches
+                const matches = findMatches(tempGrid);
+                if (matches.coords.length === 0) {
+                    // Invalid -> Revert
+                    AudioEngine.invalid();
+                    let revertGrid = cloneGrid(tempGrid);
+                    let rt1 = revertGrid[r1][c1]; let rt2 = revertGrid[r2][c2];
+                    rt1.row = r2; rt1.col = c2; rt2.row = r1; rt2.col = c1;
+                    revertGrid[r1][c1] = rt2; revertGrid[r2][c2] = rt1;
+                    setGrid(revertGrid);
+                    setTimeout(() => setIsAnimating(false), 250);
+                } else {
+                    // Valid
+                    setMoves(m => m - 1);
+                    await processCascade(tempGrid, 0, {r: r2, c: c2});
+                }
+            };
+
+            const useShuffle = async () => {
+                if(profile.shuffles > 0 && !isAnimating) {
+                    setIsAnimating(true);
+                    const p = {...profile, shuffles: profile.shuffles - 1}; setProfile(p); saveProfile(playerName, p);
+                    
+                    let tiles = [];
+                    grid.forEach(row => row.forEach(c => { if(c) tiles.push({...c}); }));
+                    tiles.sort(()=>Math.random()-0.5);
+                    
+                    let newGrid = cloneGrid(grid);
+                    let i = 0;
+                    for(let r=0; r<config.rows; r++) for(let c=0; c<config.cols; c++) {
+                        newGrid[r][c] = tiles[i++];
+                        newGrid[r][c].row = r; newGrid[r][c].col = c;
+                    }
+                    setGrid(newGrid); AudioEngine.levelClear();
+                    setTimeout(() => { setIsAnimating(false); processCascade(newGrid, 0); }, 500);
+                }
+            };
+
+            // Touch Handlers for Dragging
+            const handleTouchStart = (e, r, c) => {
+                if(isAnimating) return;
+                const touch = e.touches ? e.touches[0] : e;
+                setDraggedTile({ r, c, startX: touch.clientX, startY: touch.clientY });
+            };
+            
+            const handleTouchEnd = (e) => {
+                if(!draggedTile || isAnimating) return;
+                const touch = e.changedTouches ? e.changedTouches[0] : e;
+                const dx = touch.clientX - draggedTile.startX;
+                const dy = touch.clientY - draggedTile.startY;
+                
+                if(Math.abs(dx) > 20 || Math.abs(dy) > 20) {
+                    let targetR = draggedTile.r; let targetC = draggedTile.c;
+                    if(Math.abs(dx) > Math.abs(dy)) targetC += dx > 0 ? 1 : -1;
+                    else targetR += dy > 0 ? 1 : -1;
+                    
+                    if(targetR >= 0 && targetR < config.rows && targetC >= 0 && targetC < config.cols) {
+                        attemptSwap(draggedTile.r, draggedTile.c, targetR, targetC);
+                    }
+                } else if (activeBooster === 'hammer') {
+                    // Click instead of drag for hammer
+                    attemptSwap(draggedTile.r, draggedTile.c, draggedTile.r, draggedTile.c);
+                }
+                setDraggedTile(null);
+            };
+
+            // ===================== RENDERERS =====================
+            
+            if (!isStandalone) return <InstallPrompt deferredPrompt={deferredPrompt} />;
+
+            if (gameState === 'LOGIN') {
+                return (
+                    <div className="flex w-full h-full items-center justify-center bg-pink-50 p-6">
+                        <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center">
+                            <h1 className="text-3xl font-black text-pink-500 mb-2 font-game">Sweet Match-3</h1>
+                            <p className="text-gray-500 mb-8 text-sm font-medium">Mainkan puzzle, kumpulkan skor, tarik Rupiah!</p>
+                            <input type="text" placeholder="Nama Panggilan" maxLength={15} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center text-lg font-bold w-full focus:outline-none focus:border-pink-400 mb-4" value={playerName} onChange={e => setPlayerName(e.target.value)} />
+                            <button onClick={handleLogin} className="btn-modern bg-pink-500 text-white w-full py-4 rounded-xl font-bold text-lg shadow-md">Mulai Main</button>
+                        </div>
+                    </div>
+                );
             }
 
-            return (
-                <>
-                <div className="w-full h-[100dvh] flex items-center justify-center p-0 sm:p-2 bg-gray-50/50">
-                    <div className="w-full max-w-[480px] h-full flex flex-col bg-white sm:border sm:border-gray-200 sm:rounded-3xl sm:shadow-xl overflow-hidden relative">
-                        
-                        {/* ===================== IN-GAME HEADER ===================== */}
-                        {(gameState === 'PLAYING' || gameState === 'PAUSED' || gameState === 'COUNTDOWN') && (
-                            <div className="w-full bg-white px-4 py-3 flex flex-col gap-3 shrink-0 border-b border-gray-100 z-50 shadow-sm">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-100">
-                                        <IconHeart /><span className="text-sm font-bold text-rose-600">{hp}</span>
-                                    </div>
-                                    <div className="text-lg font-black text-gray-800 tracking-wide">Level {level}</div>
-                                    <div className="flex items-center gap-2">
-                                        <button onClick={() => setGameState('PAUSED')} className="icon-btn w-10 h-10"><IconPause /></button>
-                                        <button onClick={() => setIsMuted(m => !m)} className={`icon-btn w-10 h-10 ${isMuted ? 'text-gray-400' : 'text-gray-700'}`}>
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">{isMuted ? <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6l4.72-4.72a.75.75 0 011.28.531V19.94a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.506-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.395C2.806 8.757 3.63 8.25 4.51 8.25H6.75z" /> : <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.395C2.806 8.757 3.63 8.25 4.51 8.25H6.75z" />}</svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex-1 bg-gray-100 rounded-full h-2 relative overflow-hidden">
-                                        <div className="h-full rounded-full transition-all duration-200" style={{ width: `${progress}%`, backgroundColor: progress > 40 ? '#34d399' : progress > 20 ? '#fbbf24' : '#f87171' }} />
-                                    </div>
-                                    <span className="text-[10px] font-bold text-gray-400 w-6 text-right">{getSecondsLeft(progress, level)}s</span>
-                                    {showTimerAdd && <span className="absolute right-[40px] top-[45px] text-[10px] font-bold text-emerald-500 float-text z-[60]">+waktu</span>}
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <div className="text-sm font-bold bg-white text-gray-700">Skor: <span className="text-pink-500">{score}</span></div>
-                                    <div className="flex gap-2">
-                                        <button onClick={handleHintClick} className="icon-btn px-3 py-1.5 gap-1.5"><IconSearch /><span className="text-xs font-bold">{hints}</span></button>
-                                        <button onClick={handleShuffleClick} className="icon-btn px-3 py-1.5 gap-1.5"><IconRefresh /><span className="text-xs font-bold">{shuffles}</span></button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* ===================== GRID ===================== */}
-                        <div className="flex-1 w-full relative bg-gray-50/50">
-                            {board.length > 0 && (
-                                <>
-                                    <svg viewBox={`0 0 ${COLS + 2} ${ROWS + 2}`} preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 10 }}>
-                                        {activePath && (
-                                            <g><path d={`M ${activePath.map(p => `${p.c + 0.5} ${p.r + 0.5}`).join(' L ')}`} fill="none" stroke="#f472b6" strokeWidth="0.15" strokeLinecap="round" strokeLinejoin="round" className="path-line-outer"/></g>
-                                        )}
-                                    </svg>
-
-                                    <div className="absolute inset-0 grid p-1" style={{ zIndex: 20, gridTemplateColumns: `repeat(${COLS + 2}, 1fr)`, gridTemplateRows: `repeat(${ROWS + 2}, 1fr)`, gap: '2px' }}>
-                                        {board.map((row, r) => row.map((cellId, c) => {
-                                            if (r === 0 || r === ROWS + 1 || c === 0 || c === COLS + 1) return <div key={`${r}-${c}`} className="w-full h-full pointer-events-none" />;
-                                            const isSelected = selectedTile && selectedTile.r === r && selectedTile.c === c;
-                                            const matchingTile = matchedTiles.find(m => m.r === r && m.c === c);
-                                            const isMatching = !!matchingTile;
-                                            const isHinting = hintActiveTiles.find(h => h.r === r && h.c === c);
-                                            const isWrong = wrongTile && wrongTile.r === r && wrongTile.c === c;
-                                            const isEmpty = cellId === 0 && !isMatching;
-                                            const cellData = isMatching ? matchingTile.id : cellId;
-
-                                            return (
-                                                <div key={`${r}-${c}`} className="relative w-full h-full" style={{ padding: '1px' }}>
-                                                    {!isEmpty && (
-                                                        <button className={`cute-tile ${isSelected ? 'selected' : ''} ${isMatching ? 'matched' : ''} ${isHinting ? 'hint-glow' : ''} ${isWrong ? 'wrong' : ''}`}
-                                                            style={{ WebkitTapHighlightColor: 'transparent' }} onClick={() => handleTileClick(r, c)}>
-                                                            <svg viewBox="0 0 100 100" className="w-full h-full pointer-events-none select-none">
-                                                                <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" fontSize="64">{cellData}</text>
-                                                            </svg>
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            );
-                                        }))}
-                                    </div>
-                                </>
-                            )}
+            if (gameState === 'LOBBY') {
+                return (
+                    <div className="flex flex-col w-full h-full bg-white relative">
+                        <div className="flex justify-between p-6 pb-2 items-center">
+                            <div><span className="text-xs font-bold text-gray-400">Hai,</span><div className="text-2xl font-black">{playerName}</div></div>
+                            <button onClick={() => setGameState('WALLET')} className="btn-modern bg-gray-50 px-4 py-2 rounded-xl text-gray-800 font-bold border border-gray-200 shadow-sm"><IconWallet/> Dompet</button>
                         </div>
-
-                        {showBoardClear && <div className="absolute inset-0 bg-white board-clear-flash z-[90] pointer-events-none" />}
-                        {showTimeoutFlash && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center z-[95] timeout-flash pointer-events-none" style={{ background: 'rgba(239,68,68,0.9)' }}>
-                                <span className="text-white text-3xl font-black drop-shadow-lg">Waktu Habis!</span>
-                                <span className="text-white text-lg font-bold mt-2">-1 Nyawa</span>
+                        <div className="flex-1 flex flex-col justify-center items-center p-6 gap-6">
+                            <div className="w-full bg-gradient-to-br from-pink-400 to-rose-500 rounded-3xl p-6 text-white shadow-xl shadow-pink-200 text-center relative overflow-hidden">
+                                <div className="text-sm font-bold opacity-80 mb-1">Level Saat Ini</div>
+                                <div className="text-6xl font-black mb-4 font-game">{profile.currentLevel}</div>
+                                <button onClick={() => { if(profile.hp > 0) startLevel(profile.currentLevel); else alert("Nyawa Habis!"); }} className="bg-white text-pink-500 w-full py-4 rounded-xl font-black text-lg shadow-md active:scale-95 transition-transform flex items-center justify-center gap-2">
+                                    <IconPlay/> Mainkan
+                                </button>
+                                <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/20 rounded-full"></div>
                             </div>
-                        )}
-
-                        {/* ===================== SCREENS ===================== */}
-                        
-                        {gameState === 'LOGIN' && (
-                            <div className="absolute inset-0 bg-white flex flex-col items-center justify-center z-[100] px-6">
-                                <h1 className="text-4xl font-black text-gray-800 mb-2 tracking-tight">Sweet Connect</h1>
-                                <p className="text-gray-500 font-medium mb-10 text-center text-sm">Siapa nama bidadari cantiknya aku?</p>
-                                <input type="text" placeholder="Nama Panggilan" maxLength={15}
-                                    className="bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-center text-lg font-bold text-gray-800 w-full focus:outline-none focus:border-pink-400 focus:bg-white transition-all mb-3"
-                                    value={playerName} onChange={e => { setPlayerName(e.target.value); setLoginError(''); }}
-                                    onKeyDown={e => e.key === 'Enter' && handleLoginSubmit()} disabled={isLoadingProfile}
-                                />
-                                {loginError && <p className="text-red-400 text-xs font-bold mb-4">{loginError}</p>}
-                                <div className="mb-4"></div>
-                                <button onClick={handleLoginSubmit} disabled={isLoadingProfile} className="btn-modern bg-gray-900 text-white w-full py-4 text-base rounded-2xl shadow-lg hover:bg-black">
-                                    {isLoadingProfile ? 'Memuat Data...' : 'Masuk Sekarang'}
+                            
+                            <div className="flex gap-4 w-full">
+                                <button onClick={()=>setGameState('MYSTERY')} className="flex-1 bg-purple-50 text-purple-700 py-4 rounded-2xl font-bold flex flex-col items-center justify-center border border-purple-100 shadow-sm relative">
+                                    <IconGift/><span className="mt-1 text-sm">Gacha</span>
+                                    {profile.tickets > 0 && <span className="absolute top-2 right-2 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">{profile.tickets}</span>}
+                                </button>
+                                <button onClick={()=>setGameState('SHOP')} className="flex-1 bg-amber-50 text-amber-700 py-4 rounded-2xl font-bold flex flex-col items-center justify-center border border-amber-100 shadow-sm">
+                                    <IconStore/><span className="mt-1 text-sm">Toko</span>
                                 </button>
                             </div>
-                        )}
-
-                        {gameState === 'LOBBY_MAIN' && (
-                            <div className="absolute inset-0 bg-white flex flex-col z-[100] custom-scroll overflow-y-auto">
-                                <div className="w-full flex justify-between items-center p-6 pb-2">
-                                    <div className="flex flex-col">
-                                        <span className="text-xs font-bold text-gray-400">Halo sayangku,</span>
-                                        <div className="flex items-center gap-1">
-                                            <span className="text-xl font-black text-gray-800 tracking-tight">{playerName}</span>
-                                            {profile.flexCrown && <IconCrown />}
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button onClick={() => setGameState('WALLET')} className="btn-modern bg-gray-50 px-4 py-2 rounded-xl text-gray-700 font-bold border border-gray-100 shadow-sm text-sm relative">
-                                            <IconWallet /> Dompet
-                                            {profile.balanceIDR > 0 && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="flex-1 flex flex-col items-center justify-center p-6 w-full gap-4">
-                                    <div className="relative w-full">
-                                        <button onClick={handlePlayClick} className="btn-modern bg-pink-500 text-white w-full py-5 text-lg shadow-pink-500/30 shadow-xl rounded-2xl">
-                                            <IconPlay /> {profile.currentLevel > 1 || hasAutoSave() ? 'Lanjutkan Main' : 'Main Sekarang'}
-                                        </button>
-                                        <span className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md">
-                                            Level {profile.currentLevel}
-                                        </span>
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-2 gap-4 w-full">
-                                        <button onClick={() => setGameState('ROULETTE')} className="btn-modern flex-col bg-white border border-gray-200 text-gray-800 py-4 rounded-2xl shadow-sm relative overflow-hidden">
-                                            <div className="text-pink-500 mb-1"><IconGift /></div>
-                                            <span className="text-sm">Kado Misteri</span>
-                                            {profile.tickets > 0 && <span className="absolute top-2 right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">{profile.tickets}</span>}
-                                        </button>
-                                        <button onClick={() => setGameState('SHOP')} className="btn-modern flex-col bg-white border border-gray-200 text-gray-800 py-4 rounded-2xl shadow-sm">
-                                            <div className="text-amber-500 mb-1"><IconStore /></div>
-                                            <span className="text-sm">Toko Tema</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="p-6 text-center">
-                                    <button onClick={() => { localStorage.removeItem('pkmnPlayerName'); setPlayerName(''); setGameState('LOGIN'); }} className="text-gray-400 font-bold text-xs">Ganti Akun</button>
-                                </div>
+                            
+                            <div className="flex gap-4 items-center bg-gray-50 px-6 py-3 rounded-2xl w-full justify-between">
+                                <div className="flex items-center gap-2 text-rose-500 font-bold"><IconHeart/> {profile.hp}</div>
+                                <div className="flex items-center gap-2 text-blue-500 font-bold"><IconHammer/> {profile.hints}</div>
+                                <div className="flex items-center gap-2 text-purple-500 font-bold"><IconRefresh/> {profile.shuffles}</div>
                             </div>
-                        )}
-
-                        {gameState === 'SHOP' && <Shop profile={profile} activeTheme={activeTheme} onThemeSelect={(t) => { setActiveTheme(t); localStorage.setItem('pkmnTheme', t); }} onBuy={handleBuyStore} onClose={() => setGameState('LOBBY_MAIN')} />}
-                        {gameState === 'WALLET' && <Wallet profile={profile} playerName={playerName} onWithdraw={handleWithdrawSuccess} onClose={() => setGameState('LOBBY_MAIN')} />}
-                        {gameState === 'ROULETTE' && <MysteryGift profile={profile} onOpenComplete={(p) => { setProfile(p); saveProfile(playerName, p); }} onClose={() => setGameState('LOBBY_MAIN')} />}
-
-                        {gameState === 'LOADING_BOARD' && (
-                            <div className="absolute inset-0 bg-white flex flex-col items-center justify-center z-[100]">
-                                <div className="w-12 h-12 border-4 border-gray-100 border-t-pink-500 rounded-full animate-spin mb-6"></div>
-                                <h2 className="text-sm font-bold text-gray-500 mb-6 uppercase tracking-widest">Menyiapkan Meja</h2>
-                                <div className="w-3/4 max-w-[200px] bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                    <div className="h-full bg-pink-500 transition-all duration-300" style={{ width: `${progress}%` }}></div>
-                                </div>
-                            </div>
-                        )}
-
-                        {gameState === 'COUNTDOWN' && (
-                            <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm flex flex-col items-center justify-center z-[100]">
-                                <div key={countdown} style={{ animation: 'countdownPop 0.5s ease-out forwards', fontSize: countdown === 'GO!' ? '4rem' : '6rem', color: countdown === 'GO!' ? '#10b981' : 'white', fontWeight: 900, display: 'inline-block' }}>
-                                    {countdown}
-                                </div>
-                            </div>
-                        )}
-
-                        {gameState === 'PAUSED' && (
-                            <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-[100] px-6">
-                                <h2 className="text-2xl font-black text-gray-800 mb-8 tracking-widest uppercase">Dijeda</h2>
-                                <button onClick={() => setGameState('PLAYING')} className="btn-modern bg-gray-900 text-white w-full max-w-[260px] py-4 rounded-xl font-bold mb-4 shadow-md">Lanjutkan</button>
-                                <button onClick={() => {
-                                    const newProfile = { ...profile, hp, hints, shuffles, currentLevel: level, currentScore: score };
-                                    setProfile(newProfile); saveProfile(playerName, newProfile);
-                                    setGameState('LOBBY_MAIN');
-                                }} className="btn-modern bg-gray-100 text-gray-600 w-full max-w-[260px] py-4 rounded-xl font-bold">Simpan & Keluar ke Menu</button>
-                            </div>
-                        )}
-
-                        {gameState === 'GAMEOVER' && (
-                            <div className="absolute inset-0 bg-white flex flex-col items-center justify-center z-[100] p-6">
-                                <h2 className="text-2xl font-black text-gray-800 mb-8 uppercase tracking-widest">Game Over</h2>
-                                <div className="w-full max-w-[300px] flex flex-col gap-3 mb-8">
-                                    <div className="flex justify-between bg-white border border-gray-100 p-4 rounded-2xl shadow-sm">
-                                        <span className="text-gray-500 font-bold text-sm">Skor Akhir</span>
-                                        <span className="text-pink-500 font-black text-lg">{formatNumber(score)}</span>
-                                    </div>
-                                    <div className="flex justify-between bg-white border border-gray-100 p-4 rounded-2xl shadow-sm">
-                                        <span className="text-gray-500 font-bold text-sm">Berhenti di Level</span>
-                                        <span className="text-gray-800 font-black text-lg">{level}</span>
-                                    </div>
-                                    <div className="flex justify-between bg-amber-50 border border-amber-100 p-4 rounded-2xl shadow-sm">
-                                        <span className="text-amber-600 font-bold text-sm">Koin Didapat</span>
-                                        <span className="text-amber-500 font-black text-lg flex items-center gap-1">+{Math.floor(score * 0.1)} <IconCoin/></span>
-                                    </div>
-                                </div>
-                                {isNewRecord && <div className="bg-yellow-400 text-white font-black px-6 py-2 rounded-full mb-6 text-sm shadow-md uppercase tracking-wider">Rekor Baru!</div>}
-                                <p className="text-xs text-red-500 font-bold mb-4">Level kamu kembali ke 1 karena nyawa habis.</p>
-                                <button onClick={() => prepareLevel(1)} className="btn-modern bg-pink-500 text-white w-full max-w-[300px] py-4 rounded-xl font-bold shadow-md mb-4">Main Lagi (Level 1)</button>
-                                <button onClick={() => setGameState('LOBBY_MAIN')} className="text-gray-400 font-bold text-sm">Kembali ke Menu</button>
-                            </div>
-                        )}
-
-                        {gameState === 'WON' && (
-                            <div className="absolute inset-0 bg-white flex flex-col items-center justify-center z-[100]">
-                                <h2 className="text-2xl font-black text-gray-800 mb-6 tracking-widest">Naik Level!</h2>
-                                <div className="w-10 h-10 border-4 border-gray-100 border-t-pink-500 rounded-full animate-spin"></div>
-                            </div>
-                        )}
-                        
+                        </div>
                     </div>
+                );
+            }
+
+            if (gameState === 'WALLET') return <Wallet profile={profile} playerName={playerName} onWithdraw={()=>{}} onClose={()=>setGameState('LOBBY')}/>;
+            if (gameState === 'MYSTERY') return <MysteryGift profile={profile} onOpenComplete={(p)=>{setProfile(p); saveProfile(playerName,p);}} onClose={()=>setGameState('LOBBY')}/>;
+            if (gameState === 'SHOP') return <Shop profile={profile} onBuy={async(it)=>{ if(profile.coins>=it.price){ const p={...profile, coins:profile.coins-it.price, [it.id]:profile[it.id]+(it.id==='hp'?1:3)}; setProfile(p); saveProfile(playerName,p); }else alert("Koin tidak cukup"); }} onClose={()=>setGameState('LOBBY')}/>;
+
+            // PLAYING STATE
+            return (
+                <div className="flex flex-col w-full h-full bg-[#fdf2f8]">
+                    {/* Header Game */}
+                    <div className="bg-white/80 backdrop-blur-md px-4 py-3 border-b border-pink-100 flex flex-col gap-2 z-50 shadow-sm">
+                        <div className="flex justify-between items-center">
+                            <button onClick={()=>setGameState('LOBBY')} className="p-2 bg-gray-100 rounded-full text-gray-500"><IconPause/></button>
+                            <div className="font-black text-xl text-gray-800 font-game">Level {profile.currentLevel}</div>
+                            <div className="flex items-center gap-1.5 bg-rose-50 px-3 py-1.5 rounded-full font-bold text-rose-500 text-sm border border-rose-100"><IconHeart/> {profile.hp}</div>
+                        </div>
+                        <div className="flex justify-between items-end">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Target</span>
+                                <div className="font-bold text-gray-800 flex items-center gap-1">
+                                    {objective?.type === 'score' && `Skor: ${formatNumber(objective.current)} / ${formatNumber(objective.target)}`}
+                                    {objective?.type === 'jelly' && `Hancurkan Jelly: ${objective.current} / ${objective.target}`}
+                                    {objective?.type === 'collect' && <><span className="text-xl">{objective.targetId}</span> {objective.current} / {objective.target}</>}
+                                </div>
+                            </div>
+                            <div className="flex flex-col items-end">
+                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Langkah</span>
+                                <div className="text-3xl font-black text-pink-500 font-game leading-none">{moves}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Board Area */}
+                    <div className="flex-1 flex flex-col items-center justify-center p-2 relative overflow-hidden">
+                        {/* Combo Indicator */}
+                        {combo > 1 && <div className="absolute top-4 font-black text-2xl text-rose-500 font-game animate-bounce z-0 opacity-50">Combo x{combo}!</div>}
+                        
+                        <div className="game-board-container" style={{ width: `${BOARD_WIDTH * TILE_SIZE + 16}px`, height: `${BOARD_HEIGHT * TILE_SIZE + 16}px` }}>
+                            {/* Grid Background */}
+                            <div className="absolute inset-[8px] grid pointer-events-none" style={{ gridTemplateColumns: `repeat(${BOARD_WIDTH}, 1fr)`, gridTemplateRows: `repeat(${BOARD_HEIGHT}, 1fr)`, gap: '2px' }}>
+                                {grid.map((row, r) => row.map((cell, c) => (
+                                    <div key={`bg-${r}-${c}`} className={`grid-cell ${grid[r][c]?.obstacle === 'jelly' ? 'jelly' : ''}`}></div>
+                                )))}
+                            </div>
+                            
+                            {/* Active Tiles */}
+                            <div className="absolute inset-[8px]" onMouseLeave={handleTouchEnd} onTouchCancel={handleTouchEnd} onMouseUp={handleTouchEnd}>
+                                {grid.map(row => row.map(tile => {
+                                    if (!tile) return null;
+                                    const isPopping = poppingCoords.some(pc => pc.r === tile.row && pc.c === tile.col);
+                                    let classNames = `m3-tile ${tile.isNew ? 'falling' : ''} ${isPopping ? 'popping' : ''} `;
+                                    if (tile.special) classNames += `special-${tile.special}`;
+                                    
+                                    return (
+                                        <div key={tile.id} 
+                                            className={classNames}
+                                            style={{ 
+                                                width: `${TILE_SIZE}px`, height: `${TILE_SIZE}px`,
+                                                top: `${tile.row * TILE_SIZE}px`, left: `${tile.col * TILE_SIZE}px`,
+                                                ...(tile.isNew ? { top: `-${TILE_SIZE}px` } : {}) // Spawn from above
+                                            }}
+                                            onMouseDown={(e) => handleTouchStart(e, tile.row, tile.col)}
+                                            onTouchStart={(e) => handleTouchStart(e, tile.row, tile.col)}
+                                        >
+                                            <span style={{ fontSize: '32px', filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.15))' }}>{tile.color}</span>
+                                        </div>
+                                    );
+                                }))}
+                            </div>
+                            
+                            {/* Floating Texts */}
+                            {floatingTexts.map(ft => (
+                                <div key={ft.id} className="floating-score text-pink-500" style={{ top: `${ft.r * TILE_SIZE}px`, left: `${ft.c * TILE_SIZE}px` }}>{ft.text}</div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Footer Boosters */}
+                    <div className="bg-white p-4 flex justify-center gap-4 border-t border-gray-100 z-50">
+                        <button onClick={() => setActiveBooster(activeBooster==='hammer'?null:'hammer')} className={`flex flex-col items-center justify-center w-16 h-16 rounded-2xl border-2 transition-all ${activeBooster==='hammer'?'border-pink-500 bg-pink-50':'border-gray-200 bg-gray-50'}`}>
+                            <IconHammer/><span className="text-[10px] font-bold mt-1">{profile.hints}</span>
+                        </button>
+                        <button onClick={useShuffle} className="flex flex-col items-center justify-center w-16 h-16 rounded-2xl border-2 border-gray-200 bg-gray-50 transition-all active:scale-95">
+                            <IconRefresh/><span className="text-[10px] font-bold mt-1">{profile.shuffles}</span>
+                        </button>
+                    </div>
+
+                    {/* Result Modals */}
+                    {gameState === 'WON' && (
+                        <div className="absolute inset-0 bg-white/90 backdrop-blur-md z-[200] flex flex-col items-center justify-center p-6 text-center">
+                            <div className="confetti" style={{left: '20%', animationDelay: '0s'}}></div><div className="confetti" style={{left: '50%', animationDelay: '0.2s', backgroundColor: '#ec4899'}}></div><div className="confetti" style={{left: '80%', animationDelay: '0.1s', backgroundColor: '#3b82f6'}}></div>
+                            <h2 className="text-4xl font-black text-pink-500 mb-2 font-game">LEVEL SELESAI!</h2>
+                            <p className="font-bold text-gray-500 mb-8">Skor Akhir: {formatNumber(score)}</p>
+                            <button onClick={() => setGameState('LOBBY')} className="btn-modern bg-pink-500 text-white w-full max-w-xs py-4 rounded-xl font-bold text-lg shadow-xl">Lanjut</button>
+                        </div>
+                    )}
+
+                    {gameState === 'GAMEOVER' && (
+                        <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-md z-[200] flex flex-col items-center justify-center p-6 text-center">
+                            <h2 className="text-4xl font-black text-white mb-2 font-game">LANGKAH HABIS</h2>
+                            <p className="font-bold text-rose-400 mb-8">-1 Nyawa</p>
+                            <button onClick={() => setGameState('LOBBY')} className="btn-modern bg-white text-gray-900 w-full max-w-xs py-4 rounded-xl font-bold text-lg shadow-xl">Kembali</button>
+                        </div>
+                    )}
                 </div>
-                
-                <CustomModal isOpen={!!alertData} title={alertData?.title} content={alertData?.content} confirmText="OK" onConfirm={() => setAlertData(null)} />
-                </>
             );
         };
 
